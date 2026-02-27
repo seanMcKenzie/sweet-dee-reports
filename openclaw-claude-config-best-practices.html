@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Claude Model Config: Best Practices — Sweet Dee Research</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --border: #2e2e3e;
+      --accent: #ff5a36;
+      --accent2: #ffb347;
+      --text: #e8e8f0;
+      --muted: #8888aa;
+      --code-bg: #12121c;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --blue: #60a5fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 820px; margin: 0 auto; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .byline {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent2);
+      margin: 2rem 0 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 1.2rem 0 0.4rem;
+    }
+    p { margin-bottom: 0.8rem; color: var(--text); }
+    .summary-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 6px;
+      margin-bottom: 2rem;
+    }
+    .summary-box p { margin: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.88rem;
+    }
+    thead th {
+      background: var(--surface);
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td {
+      padding: 0.65rem 0.75rem;
+      vertical-align: top;
+    }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tag-haiku { background: rgba(74,222,128,0.15); color: var(--green); }
+    .tag-sonnet { background: rgba(96,165,250,0.15); color: var(--blue); }
+    .tag-opus { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .tag-flag { background: rgba(248,113,113,0.15); color: var(--red); }
+    pre, code {
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      font-size: 0.83rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.1rem 1.25rem;
+      overflow-x: auto;
+      margin: 0.75rem 0 1.25rem;
+      line-height: 1.6;
+    }
+    code { background: var(--code-bg); padding: 0.1em 0.3em; border-radius: 3px; }
+    .model-price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .price-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .price-card .model-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+    .price-card .price { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .price-card .desc { font-size: 0.82rem; color: var(--text); }
+    .haiku-card .model-name { color: var(--green); }
+    .sonnet-card .model-name { color: var(--blue); }
+    .opus-card .model-name { color: var(--yellow); }
+    .callout {
+      background: rgba(255,90,54,0.08);
+      border: 1px solid rgba(255,90,54,0.3);
+      border-radius: 6px;
+      padding: 0.9rem 1.2rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .callout strong { color: var(--accent); }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    ul { padding-left: 1.4rem; margin-bottom: 0.8rem; }
+    li { margin-bottom: 0.25rem; }
+    .sources li { font-size: 0.83rem; }
+    .sources a { color: var(--blue); text-decoration: none; }
+    .sources a:hover { text-decoration: underline; }
+    @media (max-width: 600px) {
+      .model-price-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="byline">🐦 Sweet Dee Research · February 27, 2026</div>
+    <h1>OpenClaw + Claude: Model Selection Best Practices</h1>
+    <p class="subtitle">A practical guide for multi-agent teams — which model, when, and how to configure it.</p>
+  </header>
+
+  <div class="summary-box">
+    <p><strong>TL;DR:</strong> As of early 2026, Sean's setup defaults every agent to <code>claude-sonnet-4-6</code>. That's not bad — Sonnet 4.6 is excellent — but it's leaving money on the table for light tasks (use Haiku) and performance on the table for heavy coding (use Opus). This report covers the full model lineup, per-agent config syntax, and concrete recommendations for each role in the K2S0 team.</p>
+  </div>
+
+  <!-- ==================== SECTION 1 ==================== -->
+  <h2>1. Current Claude Lineup (Early 2026)</h2>
+
+  <div class="model-price-grid">
+    <div class="price-card haiku-card">
+      <div class="model-name">Haiku 4.5</div>
+      <div class="price">$1 input / $5 output per MTok</div>
+      <div class="desc">Fastest. Near-frontier for simple tasks. Ideal for high-volume, low-complexity work and worker agents.</div>
+    </div>
+    <div class="price-card sonnet-card">
+      <div class="model-name">Sonnet 4.5 / 4.6</div>
+      <div class="price">$3 input / $15 output per MTok</div>
+      <div class="desc">The daily driver. Balanced cost + capability. Sonnet 4.6 adds near-Opus coding performance. Sean's current default.</div>
+    </div>
+    <div class="price-card opus-card">
+      <div class="model-name">Opus 4.6</div>
+      <div class="price">$5 input / $25 output per MTok</div>
+      <div class="desc">Flagship. 1M token context window. Best for complex coding, multi-step agents, deep reasoning. Feb 2026 release.</div>
+    </div>
+  </div>
+
+  <p><strong>Key note:</strong> Opus 4.6 (Feb 2026) is now only <em>1.67×</em> the price of Sonnet — far closer than the old 5× gap with Opus 4.1 ($15/$75). This changes the math significantly for heavy tasks. Haiku is still 3× cheaper than Sonnet, making it the right pick for coordinator routing, simple Q&amp;A, and worker agents.</p>
+
+  <p>Legacy models (Opus 4.1, Claude 3.x) remain available but are not recommended for new setups. Haiku 3 is a budget option at $0.25/$1.25 but is significantly behind Haiku 4.5 on quality.</p>
+
+  <!-- ==================== SECTION 2 ==================== -->
+  <h2>2. When to Use Each Model</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Model</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Complex coding / architecture</td>
+        <td><span class="tag tag-opus">Opus 4.6</span></td>
+        <td>Plans more carefully, sustains agentic tasks longer, catches its own mistakes. Worth the extra cost.</td>
+      </tr>
+      <tr>
+        <td>Daily coding tasks, feature work</td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Handles 90% of coding tasks well at 40% lower cost than Opus. Good default.</td>
+      </tr>
+      <tr>
+        <td>Research &amp; long documents</td>
+        <td><span class="tag tag-opus">Opus 4.6</span></td>
+        <td>1M token context window. Reads entire codebases or lengthy documents without losing thread.</td>
+      </tr>
+      <tr>
+        <td>Coordinator / routing tasks</td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Over-powered with Haiku for pure routing, but Sonnet handles edge cases better. Acceptable.</td>
+      </tr>
+      <tr>
+        <td>Simple Q&amp;A / voice interface</td>
+        <td><span class="tag tag-haiku">Haiku 4.5</span></td>
+        <td>Sub-second latency. Perfect for quick answers where depth isn't needed.</td>
+      </tr>
+      <tr>
+        <td>QA / test generation</td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Analytical, structured. Sonnet hits the cost-quality sweet spot here.</td>
+      </tr>
+      <tr>
+        <td>Creative / design briefs</td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Creative tasks benefit from nuanced tone but rarely need Opus-level reasoning.</td>
+      </tr>
+      <tr>
+        <td>High-volume worker agents</td>
+        <td><span class="tag tag-haiku">Haiku 4.5</span></td>
+        <td>Orchestrate with Sonnet, execute with Haiku. Standard multi-agent pattern.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== SECTION 3 ==================== -->
+  <h2>3. OpenClaw Config: How to Set Models Per Agent</h2>
+
+  <p>OpenClaw uses <strong>JSON5</strong> (comments + trailing commas OK) for <code>~/.openclaw/openclaw.json</code>. Model assignment works at two levels:</p>
+
+  <h3>Global Default</h3>
+  <pre><code>"agents": {
+  "defaults": {
+    "model": {
+      "primary": "anthropic/claude-sonnet-4-6"
+    }
+  }
+}</code></pre>
+
+  <h3>Per-Agent Override (Recommended)</h3>
+  <pre><code>"agents": {
+  "list": [
+    {
+      "id": "developer",
+      "model": {
+        "primary": "anthropic/claude-opus-4-6",
+        "fallbacks": ["anthropic/claude-sonnet-4-6"]
+      }
+    },
+    {
+      "id": "research",
+      "model": {
+        "primary": "anthropic/claude-opus-4-6"
+      }
+    },
+    {
+      "id": "designer",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6"
+      }
+    }
+  ]
+}</code></pre>
+
+  <h3>Channel-Level Override</h3>
+  <pre><code>"channels": {
+  "modelByChannel": {
+    "discord": {
+      "CHANNEL_ID_HERE": "anthropic/claude-haiku-4-5"
+    }
+  }
+}</code></pre>
+
+  <div class="callout">
+    <strong>⚠️ Heads up:</strong> As of Feb 2026, per-agent <code>temperature</code> and <code>maxTokens</code> inside <code>agents.list[].model</code> are <em>not yet supported</em> — config validation will reject them (GitHub issue #14494, marked as "enhancement"). Temperature is currently a defaults-only or slash-command setting. Use <code>/think</code> commands in chat to toggle reasoning depth per session.
+  </div>
+
+  <h3>Thinking / Reasoning Depth</h3>
+  <ul>
+    <li><code>/think off</code> or <code>minimal</code> — No chain-of-thought. Fastest, cheapest.</li>
+    <li><code>/reasoning</code> — Toggle extended thinking (uses more tokens, better on complex tasks)</li>
+    <li>Config default: set <code>thinking: "low"</code> in agent SOUL/AGENTS files as a convention note — actual runtime control is via slash commands.</li>
+  </ul>
+
+  <!-- ==================== SECTION 4 ==================== -->
+  <h2>4. Quick Reference: K2S0 Team Model Assignments</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Agent</th>
+        <th>Recommended Model</th>
+        <th>Cost Tier</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>K2S0 (main/coordinator)</strong></td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Mid</td>
+        <td>Routes tasks, handles user interaction. Sonnet handles edge cases better than Haiku for coordination. Current default is correct.</td>
+      </tr>
+      <tr>
+        <td><strong>Developer</strong></td>
+        <td><span class="tag tag-opus">Opus 4.6</span></td>
+        <td>High</td>
+        <td>Complex coding, architecture, multi-file reasoning. Opus 4.6 plans more carefully and reviews its own work. Pay for it here.</td>
+      </tr>
+      <tr>
+        <td><strong>PM</strong></td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Mid</td>
+        <td>Planning, communication, structured output. No need for Opus-tier reasoning.</td>
+      </tr>
+      <tr>
+        <td><strong>QA</strong></td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Mid</td>
+        <td>Analytical but not architect-level. Sonnet is the right balance for test gen and review.</td>
+      </tr>
+      <tr>
+        <td><strong>DevOps</strong></td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Mid</td>
+        <td>Scripting, infrastructure tasks, incident response. Sonnet is sufficient; upgrade to Opus for complex debugging sessions.</td>
+      </tr>
+      <tr>
+        <td><strong>Research (Sweet Dee)</strong></td>
+        <td><span class="tag tag-opus">Opus 4.6</span></td>
+        <td>High</td>
+        <td>Long documents, synthesis across many sources. The 1M token context window is genuinely useful. Worth it.</td>
+      </tr>
+      <tr>
+        <td><strong>Designer</strong></td>
+        <td><span class="tag tag-sonnet">Sonnet 4.6</span></td>
+        <td>Mid</td>
+        <td>Creative briefs, copy, visual concepts. Nuance matters but not frontier reasoning. Sonnet is the call.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== SECTION 5 ==================== -->
+  <h2>5. Cost vs Capability: When to Spend More</h2>
+
+  <p><strong>Spend on Opus when:</strong> The task involves architectural decisions, large codebase review, agentic chains that run for minutes, or documents exceeding 200K tokens. Opus 4.6 at $5/$25 is a much easier call than Opus 4.1 was at $15/$75.</p>
+
+  <p><strong>Stick with Sonnet when:</strong> The task is a standard feature, a moderate document, a design brief, or anything a skilled generalist can handle in one pass. Sonnet 4.6 delivers near-Opus coding performance at 40% lower cost.</p>
+
+  <p><strong>Drop to Haiku when:</strong> The task is repetitive, low-complexity, or latency-critical. High-volume worker agents in multi-agent pipelines should default to Haiku. For reference, Haiku is 3× cheaper than Sonnet on input and output tokens.</p>
+
+  <h3>Practical tip: Prompt Caching</h3>
+  <p>Enable prompt caching for agents with large, stable system prompts (SOUL.md, AGENTS.md, USER.md). Cached tokens cost ~10% of normal input tokens. For research and developer agents with long context, this alone can reduce costs 40-60%.</p>
+
+  <h3>Batch Processing</h3>
+  <p>For non-real-time tasks (report generation, bulk analysis), OpenClaw can route through the Anthropic batch API for 50% cost savings. Ask K2S0 to queue non-urgent research tasks as batch jobs.</p>
+
+  <!-- ==================== SECTION 6 ==================== -->
+  <h2>6. Current State &amp; Immediate Actions</h2>
+
+  <p>Sean's current config: <strong>all 7 agents on <code>claude-sonnet-4-6</code>, no per-agent overrides.</strong></p>
+
+  <ul>
+    <li>✅ <strong>Keep:</strong> Sonnet 4.6 as default for main, PM, QA, DevOps, Designer</li>
+    <li>🔼 <strong>Upgrade:</strong> Developer and Research agents to <code>claude-opus-4-6</code></li>
+    <li>📉 <strong>Optional downgrade:</strong> Add Haiku 4.5 as a fallback for high-volume routine tasks</li>
+    <li>🧠 <strong>Future:</strong> Watch GitHub issue #14494 — per-agent temperature will allow tuning creativity vs determinism per role once merged</li>
+  </ul>
+
+  <div class="sources">
+    <h2>Sources</h2>
+    <ul>
+      <li><a href="https://www.anthropic.com/news/claude-opus-4-6">Anthropic — Introducing Claude Opus 4.6 (Feb 2026)</a></li>
+      <li><a href="https://docs.openclaw.ai/gateway/configuration-reference">OpenClaw Docs — Configuration Reference</a></li>
+      <li><a href="https://claudefa.st/blog/models">ClaudeFa.st — Every Claude Model: Complete Guide</a></li>
+      <li><a href="https://claudelog.com/mechanics/tactical-model-selection/">ClaudeLog — Tactical Model Selection</a></li>
+      <li><a href="https://serenitiesai.com/articles/claude-api-pricing-2026">Serenities AI — Claude API Pricing 2026</a></li>
+      <li><a href="https://moltfounders.com/openclaw-runbook/config-reference">MoltFounders — OpenClaw Config Reference (annotated)</a></li>
+      <li><a href="https://github.com/openclaw/openclaw/issues/14494">GitHub openclaw/openclaw #14494 — Per-agent temperature feature request</a></li>
+      <li><a href="https://gptproto.com/blog/anthropic-api">GPTProto — Anthropic API Guide 2026</a></li>
+    </ul>
+  </div>
+
+  <footer>
+    Report by Sweet Dee 🐦 · Research Agent · K2S0 Team · Generated 2026-02-27 · OpenClaw workspace-research
+  </footer>
+
+</div>
+</body>
+</html>
