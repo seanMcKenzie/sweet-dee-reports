@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Figma API Wireframe Feasibility — Sweet Dee Research</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #7c6af7;
+      --accent2: #f97316;
+      --text: #e2e4f0;
+      --muted: #8a8fa8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 0.4rem;
+    }
+    .meta { color: var(--muted); font-size: 0.85rem; }
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: white;
+      margin: 2rem 0 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 1.2rem 0 0.4rem;
+    }
+    p { margin-bottom: 0.85rem; color: var(--text); }
+    .verdict-box {
+      background: var(--surface);
+      border-left: 4px solid var(--red);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .verdict-box.warn { border-left-color: var(--yellow); }
+    .verdict-box.good { border-left-color: var(--green); }
+    .verdict-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+    .verdict-box .verdict-label { color: var(--red); }
+    .verdict-box.warn .verdict-label { color: var(--yellow); }
+    .verdict-box.good .verdict-label { color: var(--green); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.88rem;
+    }
+    th {
+      text-align: left;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.6rem 0.8rem;
+    }
+    td {
+      padding: 0.55rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    .yes { color: var(--green); font-weight: 700; }
+    .no { color: var(--red); font-weight: 700; }
+    .partial { color: var(--yellow); font-weight: 700; }
+    pre {
+      background: #12141e;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin: 0.75rem 0 1.25rem;
+    }
+    code { font-family: 'Fira Code', 'Cascadia Code', monospace; }
+    .comment { color: #5c6370; }
+    .kw { color: #c678dd; }
+    .str { color: #98c379; }
+    .fn { color: #61afef; }
+    .num { color: #d19a66; }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0 1rem;
+    }
+    ul li {
+      padding: 0.3rem 0;
+      padding-left: 1.2rem;
+      position: relative;
+    }
+    ul li::before { content: "→ "; color: var(--accent); position: absolute; left: 0; }
+    .rec-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin: 0.75rem 0;
+    }
+    .rec-block h3 { margin-top: 0; }
+    .pill {
+      display: inline-block;
+      background: rgba(124,106,247,0.15);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .pill.orange { background: rgba(249,115,22,0.15); color: var(--accent2); }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .sources a { color: var(--accent); text-decoration: none; }
+    .sources a:hover { text-decoration: underline; }
+    .sources li { font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="tag">🐦 Sweet Dee Research</div>
+  <h1>Figma API Wireframe Feasibility</h1>
+  <p class="meta">Filed: February 27, 2026 &nbsp;·&nbsp; Requested by: K2S0 (for Cricket wireframe pipeline) &nbsp;·&nbsp; Confidence: High</p>
+</header>
+
+<h2>TL;DR</h2>
+<div class="verdict-box">
+  <div class="verdict-label">❌ Verdict: Not Possible via REST API</div>
+  <p style="margin:0">The Figma REST API is <strong>read-only for design content</strong>. It cannot create files, frames, rectangles, text nodes, or any design primitives. This is a deliberate architectural choice by Figma, not a gap waiting to be filled. The Plugin API can write to files, but requires the Figma desktop app open with user interaction — not viable for a headless agent.</p>
+</div>
+
+<h2>1. What the Figma REST API Can (and Cannot) Do</h2>
+
+<table>
+  <tr>
+    <th>Operation</th>
+    <th>REST API</th>
+    <th>Plugin API</th>
+  </tr>
+  <tr>
+    <td>Read file content / nodes</td>
+    <td class="yes">YES</td>
+    <td class="yes">YES</td>
+  </tr>
+  <tr>
+    <td>Export node images (PNG/SVG/PDF)</td>
+    <td class="yes">YES</td>
+    <td class="yes">YES</td>
+  </tr>
+  <tr>
+    <td>Read/write comments</td>
+    <td class="yes">YES (both)</td>
+    <td class="no">NO</td>
+  </tr>
+  <tr>
+    <td>Manage webhooks, projects, teams</td>
+    <td class="yes">YES</td>
+    <td class="no">NO</td>
+  </tr>
+  <tr>
+    <td>Create design nodes (frames, shapes, text)</td>
+    <td class="no">NO</td>
+    <td class="yes">YES</td>
+  </tr>
+  <tr>
+    <td>Create new files from scratch</td>
+    <td class="no">NO</td>
+    <td class="partial">PARTIAL</td>
+  </tr>
+  <tr>
+    <td>Work headlessly (no UI, no user)</td>
+    <td class="yes">YES</td>
+    <td class="no">NO</td>
+  </tr>
+</table>
+
+<p>The REST API exposes <code>GET /v1/files/:key</code>, image export endpoints, comment CRUD, webhooks, and library analytics. It has no <code>POST</code> or <code>PUT</code> endpoints for file content. Figma's own docs confirm: <em>"REST API: Can only read the data from the file, can't write to the file."</em></p>
+
+<p>A Figma Forum thread from a developer who tried this:<br>
+<em>"I started using the figma API for the first time today and I was kind of surprised to find there are no endpoints for creating elements, be it documents, frames or shapes. Are there plans to add creation endpoints to the API?"</em><br>
+The official response: <em>"You can use the Plugins API to edit files programmatically. There is no info on anything like this becoming available in the near future for the REST API."</em></p>
+
+<h2>2. Why the Plugin API Doesn't Help Us</h2>
+
+<p>The Plugin API <em>can</em> create frames and nodes:</p>
+
+<pre><code><span class="comment">// Plugin API only — requires Figma app open, user interaction</span>
+<span class="kw">const</span> frame = figma.<span class="fn">createFrame</span>()
+frame.x = <span class="num">50</span>
+frame.y = <span class="num">50</span>
+frame.resize(<span class="num">375</span>, <span class="num">812</span>)
+
+<span class="kw">const</span> rect = figma.<span class="fn">createRectangle</span>()
+rect.fills = [{ type: <span class="str">'SOLID'</span>, color: { r: <span class="num">0.9</span>, g: <span class="num">0.9</span>, b: <span class="num">0.9</span> } }]
+frame.<span class="fn">appendChild</span>(rect)</code></pre>
+
+<p>The problem: it requires a user to have the Figma app open, be logged in, and run the plugin. Attempts to automate this via Selenium or headless browsers hit CAPTCHAs and login lockouts. The <code>TalkToFigma MCP</code> project (github.com/grab/cursor-talk-to-figma-mcp) works via a WebSocket bridge — but still requires Figma running with the plugin installed. Not headless.</p>
+
+<h2>3. Available Libraries (All Read-Only)</h2>
+
+<ul>
+  <li><span class="pill">npm</span> <code>figma-api</code> — 62.5K weekly downloads, TypeScript wrapper for REST API. Read-only for file content.</li>
+  <li><span class="pill">npm</span> <code>@neodx/figma</code> — Typed API + asset export. Read-only.</li>
+  <li><span class="pill">npm</span> <code>figma-tools</code> — fetchImages, watchFile, diffFiles. Read-only.</li>
+  <li><span class="pill orange">PyPI</span> <code>mcp-figma-tools</code> — MCP server wrapping the REST API for file data, screens, node details. Read-only.</li>
+</ul>
+
+<p>All libraries are wrappers around the same read-only REST API. None can create design content. The Figma MCP Server (Figma's own, beta as of Sept 2025) is also explicitly for design-to-code READ workflows, not creation.</p>
+
+<h2>4. Alternatives with Better APIs</h2>
+
+<div class="rec-block">
+  <h3>🟢 Penpot (Best Option)</h3>
+  <p>Open-source, self-hostable Figma alternative. Its Plugin API supports write operations. <strong>Key advantage</strong>: Penpot files are ZIP archives of SVG files — a well-documented, open format. An AI agent could potentially generate a valid <code>.penpot</code> file directly without any app interaction. Penpot is actively building MCP server support (Smashing Magazine, Jan 2026) for AI-powered design workflows. No proprietary binary formats, no gating.</p>
+</div>
+
+<div class="rec-block">
+  <h3>🟡 Sketch (Mac-only, limited)</h3>
+  <p>Has a JavaScript plugin API for write operations, but requires macOS and Sketch running. Not suitable for headless CLI use.</p>
+</div>
+
+<div class="rec-block">
+  <h3>🟡 SVG → Figma Import</h3>
+  <p>Generate SVG wireframes (Cricket can do this alongside HTML), then <em>manually</em> import into Figma. Loses Figma layer structure but gets you a design file. Still requires a human to open Figma and import. Not fully automated.</p>
+</div>
+
+<h2>5. Practical Recommendation for Headless Agent Use</h2>
+
+<div class="verdict-box good">
+  <div class="verdict-label">✅ Best Path Right Now</div>
+  <p style="margin:0"><strong>Keep generating HTML wireframes (Cricket's current output).</strong> HTML is actually a superior deliverable: shareable via URL, renderable in any browser, version-controllable, and requires zero proprietary tooling. If Figma files are required for stakeholder review, a human can import SVG into Figma — but that's optional, not critical.</p>
+</div>
+
+<p>If a proper "design file" format is a hard requirement in the future:</p>
+
+<ul>
+  <li><strong>Penpot is the only viable path</strong> for fully headless programmatic design creation. Self-host Penpot, use its Plugin API, or generate <code>.penpot</code> files directly (ZIP of SVGs).</li>
+  <li>Monitor Figma's REST API changelog — they're investing in the platform (MCP server beta, granular OAuth scopes) but there's no announced timeline for write endpoints.</li>
+  <li>The <code>TalkToFigma MCP</code> bridge is a workaround but requires Figma open — not truly headless.</li>
+</ul>
+
+<h2>Sources</h2>
+<ul class="sources">
+  <li><a href="https://developers.figma.com/compare-apis/">developers.figma.com/compare-apis/</a> — Official API comparison</li>
+  <li><a href="https://developers.figma.com/docs/rest-api/">developers.figma.com/docs/rest-api/</a> — REST API Introduction</li>
+  <li><a href="https://forum.figma.com/archive-21/generating-a-figma-file-from-node-34657">Figma Forum: "Generating a Figma File from Node"</a></li>
+  <li><a href="https://forum.figma.com/archive-21/choosing-between-plugin-and-using-rest-api-33797">Figma Forum: "Choosing between plugin and REST API"</a></li>
+  <li><a href="https://forum.figma.com/ask-the-community-7/alternative-to-plugin-api-to-write-operations-23221">Figma Forum: "Alternative to plugin API to write operations"</a></li>
+  <li><a href="https://developers.figma.com/docs/rest-api/changelog/">Figma REST API Changelog</a></li>
+  <li><a href="https://www.smashingmagazine.com/2026/01/penpot-experimenting-mcp-servers-ai-powered-design-workflows/">Smashing Magazine: Penpot MCP Servers (Jan 2026)</a></li>
+  <li><a href="https://mcp.sonnylab.com/">TalkToFigma MCP — github.com/grab/cursor-talk-to-figma-mcp</a></li>
+  <li><a href="https://www.figma.com/blog/introducing-figma-mcp-server/">Figma Blog: Introducing Figma MCP Server (June 2025)</a></li>
+  <li><a href="https://npmjs.com/package/figma-api">figma-api on npm</a></li>
+</ul>
+
+<footer>
+  <p>🐦 Sweet Dee Research &nbsp;·&nbsp; This report was generated fully programmatically. No Figma was opened in the making of this document.</p>
+</footer>
+
+</body>
+</html>
