@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physician Data Market Research</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0b0e; --surface: #13131a; --surface2: #1a1a24;
+      --border: #252535; --accent: #0ea5e9; --accent2: #7f5af0;
+      --green: #2cb67d; --orange: #ff8906; --red: #e53170;
+      --text: #fffffe; --muted: #72748a; --subtle: #3d3d55;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.7; }
+
+    .hero { background: linear-gradient(150deg, #071824 0%, #0b0b0e 60%); border-bottom: 1px solid var(--border); padding: 3rem 2rem 2.5rem; text-align: center; }
+    .hero-label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; margin-bottom: 0.4rem; }
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .hero-meta { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .meta-item { font-size: 0.75rem; color: var(--muted); }
+    .meta-item strong { color: var(--text); }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+    .summary-box { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 10px; padding: 1.5rem 1.75rem; margin-bottom: 2.5rem; }
+    .summary-label { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.6rem; }
+    .summary-box p { color: var(--text); font-size: 0.95rem; line-height: 1.75; }
+
+    .toc { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+    .toc-title { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); font-weight: 700; margin-bottom: 0.6rem; }
+    .toc ol { padding-left: 1.25rem; }
+    .toc li { margin-bottom: 0.25rem; }
+    .toc a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.15s; }
+    .toc a:hover { color: var(--text); }
+
+    .section { margin-bottom: 3rem; }
+    h2 { font-size: 1.2rem; font-weight: 800; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-bottom: 1.25rem; }
+    h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin: 1.5rem 0 0.6rem; }
+    h4 { font-size: 0.85rem; font-weight: 700; color: var(--accent2); margin: 1rem 0 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    p { margin-bottom: 0.9rem; color: #d0cde0; }
+    strong { color: var(--text); }
+    em { color: #b8a8e0; }
+
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.9rem; }
+    li { margin-bottom: 0.35rem; color: #d0cde0; }
+
+    .data-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.25rem 0; }
+    .data-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .data-card-title { font-size: 0.95rem; font-weight: 800; color: var(--text); }
+    .data-card-badge { font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; flex-shrink: 0; }
+    .badge-free { background: rgba(44,182,125,0.15); color: var(--green); border: 1px solid rgba(44,182,125,0.3); }
+    .badge-licensed { background: rgba(255,137,6,0.12); color: var(--orange); border: 1px solid rgba(255,137,6,0.25); }
+    .data-card-url { font-size: 0.72rem; font-family: monospace; color: var(--accent); margin-bottom: 0.6rem; }
+    .data-card-url a { color: var(--accent); text-decoration: none; }
+    .data-card-url a:hover { text-decoration: underline; }
+
+    .highlight-box { background: rgba(14,165,233,0.07); border: 1px solid rgba(14,165,233,0.2); border-radius: 8px; padding: 0.9rem 1.1rem; margin: 1rem 0; font-size: 0.87rem; }
+    .highlight-box strong { color: var(--accent); }
+
+    /* Pricing/comparison table */
+    .data-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.83rem; }
+    .data-table th { background: var(--surface2); color: var(--muted); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.6rem 0.9rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--border); color: #d0cde0; vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--surface2); }
+    .free { color: var(--green); font-weight: 700; }
+    .licensed { color: var(--orange); font-weight: 700; }
+
+    /* Sources */
+    .source-list { list-style: none; padding: 0; }
+    .source-item { display: flex; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.4rem; font-size: 0.82rem; align-items: flex-start; }
+    .source-num { flex-shrink: 0; font-size: 0.7rem; font-weight: 800; color: var(--accent); min-width: 28px; padding-top: 0.1rem; }
+    .source-item a { color: var(--accent2); text-decoration: none; display: block; font-size: 0.72rem; margin-top: 0.2rem; word-break: break-all; }
+    .source-item a:hover { text-decoration: underline; }
+
+    .report-footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .dee { color: var(--accent2); }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    @media (max-width: 600px) {
+      .container { padding: 1rem 1rem 3rem; }
+      .hero { padding: 2rem 1rem; }
+      .data-table { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Market Research Report · Healthcare Data</div>
+  <h1>Physician Data: <em>What's Available</em></h1>
+  <div class="hero-sub">Publicly Available & Commercial Data on Doctors, Medical Practices, and Physician Purchasing</div>
+  <div class="hero-meta">
+    <div class="meta-item"><strong>Prepared by:</strong> Sweet Dee (Research Agent)</div>
+    <div class="meta-item"><strong>Date:</strong> February 25, 2026</div>
+    <div class="meta-item"><strong>Status:</strong> Final</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="summary-box">
+    <div class="summary-label">Summary</div>
+    <p>There is a surprisingly rich ecosystem of publicly available data on U.S. physicians — driven largely by federal transparency mandates passed in the Affordable Care Act era and the Medicare/Medicaid system's need to publish utilization data. The Centers for Medicare & Medicaid Services (CMS) alone publishes half a dozen high-value datasets covering NPI numbers, practice addresses, prescribing patterns, procedure volumes, and payments from pharmaceutical companies. Beyond government data, the AMA maintains the most comprehensive private physician registry in the country, and a robust commercial data industry — led by IQVIA, Symphony Health, and Definitive Healthcare — has been built on top of and around these sources to power pharmaceutical sales rep targeting, medical device marketing, and healthcare B2B sales. This report maps the full landscape: what's free, what's licensed, what it covers, and what you can do with it.</p>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#cms">CMS / Medicare Public Datasets</a></li>
+      <li><a href="#ama">AMA Physician Masterfile</a></li>
+      <li><a href="#commercial">Commercial Data Providers</a></li>
+      <li><a href="#rx">Prescription Data Sources</a></li>
+      <li><a href="#targeting">B2B Physician Targeting Landscape</a></li>
+      <li><a href="#gaps">Data Quality & Coverage Gaps</a></li>
+      <li><a href="#sources">Cited Sources</a></li>
+    </ol>
+  </nav>
+
+  <!-- Section 1: CMS -->
+  <div class="section" id="cms">
+    <h2>1. CMS / Medicare Public Datasets</h2>
+    <p>CMS publishes its data through <strong>data.cms.gov</strong> and the broader data.gov ecosystem. Most datasets are updated annually and are freely downloadable.</p>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">NPPES NPI Registry</div>
+        <span class="data-card-badge badge-free">FREE</span>
+      </div>
+      <div class="data-card-url"><a href="https://npiregistry.cms.hhs.gov" target="_blank">npiregistry.cms.hhs.gov</a></div>
+      <p>The foundation of physician data in the U.S. Every healthcare provider who bills Medicare or Medicaid has a unique 10-digit NPI. The full NPPES bulk download (updated weekly) contains: full name, credential, specialty taxonomy codes, primary practice address, phone/fax, organization affiliation, gender, and enumeration date.</p>
+      <div class="highlight-box"><strong>Coverage:</strong> ~7 million active NPIs. ~1.0–1.2 million active MDs/DOs. <strong>Best free starting point</strong> for building a physician contact list — name, specialty, address for essentially every practicing physician in the U.S.</div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Medicare Part D Prescriber Data</div>
+        <span class="data-card-badge badge-free">FREE</span>
+      </div>
+      <div class="data-card-url"><a href="https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers" target="_blank">data.cms.gov — Part D Prescribers</a></div>
+      <p>Annual dataset. Contains prescribing patterns for physicians who wrote Medicare Part D (outpatient drug) prescriptions. Includes: prescriber NPI, name, specialty, address, drug name (brand and generic), total claims, total 30-day fills, total day supply, total drug cost, and beneficiary count.</p>
+      <div class="highlight-box"><strong>The big one for pharma.</strong> You can see exactly how many scripts of Drug X a specific physician wrote in a given year. Covers ~1.5 million prescribers. Covers ~40% of U.S. prescriptions. Free, annual, actionable.</div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Medicare Part B Utilization — Physician & Other Practitioners</div>
+        <span class="data-card-badge badge-free">FREE</span>
+      </div>
+      <div class="data-card-url"><a href="https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners" target="_blank">data.cms.gov — Physician Utilization</a></div>
+      <p>Claim-level aggregated data on what Medicare Part B physicians billed — by provider and by HCPCS (procedure) code. Covers ~1 million providers. Includes number of services billed, beneficiaries, submitted charges, Medicare allowed amount, and payment amounts.</p>
+      <div class="highlight-box"><strong>Key use case:</strong> Identifying high-volume proceduralists. A cardiologist billing 2,000 echocardiograms/year is a very different target than one billing 50. This data makes that visible — for free.</div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Open Payments (Sunshine Act)</div>
+        <span class="data-card-badge badge-free">FREE</span>
+      </div>
+      <div class="data-card-url"><a href="https://openpaymentsdata.cms.gov" target="_blank">openpaymentsdata.cms.gov</a></div>
+      <p>Mandated by the ACA, Open Payments requires drug and device manufacturers to report all payments to physicians. Categories: general payments (speaking fees, consulting, meals, travel), research payments, and ownership interests. Published annually since 2013. $2+ billion in payments reported annually.</p>
+      <div class="highlight-box"><strong>KOL identification:</strong> Find physicians receiving large consulting or speaking fees from manufacturers. Critical for competitive intelligence — which physicians are your competitors paying, and for what drug/device?</div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Care Compare / Provider Data Catalog</div>
+        <span class="data-card-badge badge-free">FREE</span>
+      </div>
+      <div class="data-card-url"><a href="https://data.cms.gov/provider-characteristics" target="_blank">data.cms.gov — Provider Characteristics</a></div>
+      <p>Quality metrics, board certifications, hospital affiliations, whether physicians accept new Medicare patients, and group practice quality data. Useful for validating physician status, understanding affiliations, and identifying independent vs. health-system-employed practices.</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Section 2: AMA -->
+  <div class="section" id="ama">
+    <h2>2. AMA Physician Masterfile</h2>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">AMA Physician Masterfile</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <div class="data-card-url"><a href="https://www.ama-assn.org/practice-management/masterfile/ama-physician-masterfile" target="_blank">ama-assn.org</a></div>
+      <p>The gold standard private physician database in the United States. Maintained since 1906. Covers ~1.4 million total records; ~950,000 actively practicing physicians. Includes:</p>
+      <ul>
+        <li>Specialty (self-reported + AMA-coded)</li>
+        <li>Practice setting (solo, group, hospital-employed, academic, government)</li>
+        <li>Medical school, graduation year, residency, fellowship</li>
+        <li>Board certification status (sourced from ABMS)</li>
+        <li><strong>DEA number</strong> (highly valuable for pharmaceutical targeting)</li>
+        <li>Practice address, phone, email (where available)</li>
+        <li>Hospital affiliations</li>
+      </ul>
+      <div class="highlight-box"><strong>What makes it different from NPPES:</strong> DEA numbers, board certifications, training history, tracks physicians before they have an NPI (residents), and actively maintained currency. Full file license: typically <strong>six figures annually</strong> for major pharma users.</div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Section 3: Commercial -->
+  <div class="section" id="commercial">
+    <h2>3. Commercial Data Providers</h2>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">IQVIA (formerly IMS Health)</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <div class="data-card-url"><a href="https://www.iqvia.com" target="_blank">iqvia.com</a></div>
+      <p><strong>Xponent:</strong> The dominant Rx tracking product. Tracks ~80–90% of U.S. retail prescriptions from pharmacy dispensing data. Updated weekly. Prescriber-level, by brand and generic, new-to-brand vs. refill, payer type. This is what pharma sales reps use.</p>
+      <p><strong>OneKey:</strong> IQVIA's physician universe combining AMA Masterfile with their own enrichment — affiliations, digital identifiers, contact info, linked to prescribing data. Industry standard HCP master data solution.</p>
+      <div class="highlight-box"><strong>Pricing:</strong> Xponent/OneKey combo typically <strong>$500K–$5M+/year</strong> depending on scope. IQVIA serves all top pharma companies. Revenue ~$15B annually.</div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Symphony Health (ICON plc)</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <div class="data-card-url"><a href="https://www.symphonyhealth.com" target="_blank">symphonyhealth.com</a></div>
+      <p><strong>ProSource:</strong> Physician-level prescription data competing directly with IQVIA Xponent. <strong>PatientSource:</strong> Patient-level longitudinal claims data (de-identified). Known for better specialty pharmacy and Medicaid coverage. Popular alternative or complement to IQVIA, especially for oncology and rare disease.</p>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Definitive Healthcare</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <div class="data-card-url"><a href="https://www.definitivehc.com" target="_blank">definitivehc.com</a> · NYSE: DH</div>
+      <p>Leading B2B commercial intelligence for the broader healthcare market. Profiles on ~3.5 million U.S. providers. Includes claims-derived procedure volumes, affiliation mapping, <strong>technology usage (which EMR)</strong>, contact info, and hospital financial data. Pricing: <strong>~$50K–$500K+/year</strong>. Primary tool for medical device, health IT, and healthcare services companies.</p>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Veeva OpenData</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <div class="data-card-url"><a href="https://www.veeva.com/products/vault-crm/veeva-opendata/" target="_blank">veeva.com</a></div>
+      <p>Physician reference data service integrated natively into Veeva CRM (used by virtually every mid-to-large pharma company). Covers ~2 million U.S. HCPs. Sourced from AMA Masterfile + state licensing boards. Near-real-time updates — when a doctor moves practices, the CRM updates automatically.</p>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Komodo Health</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <div class="data-card-url"><a href="https://www.komodohealth.com" target="_blank">komodohealth.com</a></div>
+      <p>330+ million de-identified patient records. Longitudinal claims across all payer types. Strong in rare disease, oncology, and specialty drugs. Competes with IQVIA Real-World Data. Growing fast — used for patient finding, market sizing, and physician targeting via patient journey analysis.</p>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="data-card-title">Digital Physician Targeting Networks</div>
+        <span class="data-card-badge badge-licensed">LICENSED</span>
+      </div>
+      <p><strong>Doceree:</strong> Programmatic advertising targeting physicians by NPI across medical publisher sites. <strong>Doximity Ads:</strong> Reach ~80% of U.S. physicians (verified profiles) by specialty, geography, or NPI list. <strong>PatientPoint:</strong> In-office digital media (waiting rooms, exam rooms).</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Section 4: Rx Data -->
+  <div class="section" id="rx">
+    <h2>4. Prescription Data Sources</h2>
+    <h3>How Rx Data Actually Works</h3>
+    <ol>
+      <li><strong>Pharmacy dispensing:</strong> When a prescription is filled, the pharmacy records the drug, quantity, prescriber NPI/DEA, date, and payer.</li>
+      <li><strong>IQVIA/Symphony aggregate:</strong> These companies collect data from ~50,000+ pharmacies covering ~80–90% of U.S. prescriptions, de-identify patient info, attach prescriber identifiers, and sell it as prescriber-level data.</li>
+      <li><strong>Specialty pharmacy:</strong> Separate channel for high-cost biologics, oncology, and rare disease drugs — often licensed separately.</li>
+    </ol>
+
+    <h3>The AMA Opt-Out Issue</h3>
+    <p>The AMA's <strong>Physician Data Restriction Program (PDRP)</strong> allows physicians to opt out of having their prescribing data used for pharmaceutical sales. The Supreme Court affirmed in <em>Sorrell v. IMS Health (2011)</em> that prescribing data sales are protected commercial speech, but the PDRP opt-out persists. Physicians who opt out are flagged — pharma companies typically cannot use that data for detailing them.</p>
+
+    <h3>Medicare Part D as a Free Alternative</h3>
+    <p>For companies that can't justify IQVIA costs, CMS Part D Prescriber Data provides genuine physician-level Rx data for the Medicare population — free. Covers ~40% of U.S. prescriptions. Annual, not weekly, and no payer breakdown — but legitimate and actionable for targeting.</p>
+  </div>
+
+  <hr />
+
+  <!-- Section 5: Targeting -->
+  <div class="section" id="targeting">
+    <h2>5. B2B Physician Targeting Landscape</h2>
+
+    <h3>Typical Pharma Data Stack</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Layer</th><th>Data Source</th><th>Purpose</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Universe / Master</td><td>AMA Masterfile + Veeva OpenData</td><td>Who are all the physicians?</td><td class="licensed">Licensed</td></tr>
+        <tr><td>Prescribing</td><td>IQVIA Xponent or Symphony ProSource</td><td>What are they prescribing?</td><td class="licensed">Licensed</td></tr>
+        <tr><td>Affiliations</td><td>IQVIA OneKey or Definitive HC</td><td>Where do they work?</td><td class="licensed">Licensed</td></tr>
+        <tr><td>KOL / Payments</td><td>CMS Open Payments</td><td>Who's being paid by pharma?</td><td class="free">Free</td></tr>
+        <tr><td>Procedure Volume</td><td>CMS Part B Utilization</td><td>High-volume proceduralists</td><td class="free">Free</td></tr>
+        <tr><td>Rx (Medicare)</td><td>CMS Part D Prescriber Data</td><td>Medicare prescribing behavior</td><td class="free">Free</td></tr>
+        <tr><td>CRM</td><td>Veeva CRM</td><td>Sales call tracking, samples</td><td class="licensed">Licensed</td></tr>
+        <tr><td>Digital</td><td>Doceree, Doximity Ads</td><td>Digital HCP marketing</td><td class="licensed">Licensed</td></tr>
+        <tr><td>Patient Insights</td><td>Komodo Health, IQVIA RWD</td><td>Patient journeys, market sizing</td><td class="licensed">Licensed</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Free vs. Licensed Summary</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Dataset</th><th>What You Get</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>NPPES NPI Registry</td><td>Name, specialty, address for ~1.2M physicians</td><td class="free">Free</td></tr>
+        <tr><td>CMS Part D Prescribing</td><td>Rx volume by prescriber and drug (Medicare)</td><td class="free">Free</td></tr>
+        <tr><td>CMS Part B Utilization</td><td>Procedure volumes by physician (Medicare)</td><td class="free">Free</td></tr>
+        <tr><td>Open Payments</td><td>Pharma payments to physicians</td><td class="free">Free</td></tr>
+        <tr><td>AMA Masterfile</td><td>Comprehensive physician universe + DEA</td><td class="licensed">Six figures/year</td></tr>
+        <tr><td>IQVIA Xponent</td><td>Commercial Rx tracking (~90% of market)</td><td class="licensed">$500K–$5M+/year</td></tr>
+        <tr><td>Definitive Healthcare</td><td>Hospital + physician intelligence platform</td><td class="licensed">$50K–$500K+/year</td></tr>
+        <tr><td>Veeva OpenData</td><td>Physician reference data for CRM</td><td class="licensed">Bundled with Veeva CRM</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr />
+
+  <!-- Section 6: Gaps -->
+  <div class="section" id="gaps">
+    <h2>6. Data Quality & Coverage Gaps</h2>
+    <h3>What's Hard to Get</h3>
+    <ul>
+      <li><strong>Email addresses:</strong> Low coverage in public data. Commercial providers have partial coverage but quality varies. Doximity is the highest-quality channel for verified physician emails.</li>
+      <li><strong>Physician device purchasing:</strong> Not publicly available at the physician level. Facility-level purchasing can be inferred from procedure volume data. GPO contracts are private.</li>
+      <li><strong>Independent practice financials:</strong> No public source for private physician practice revenue.</li>
+      <li><strong>Real-time data:</strong> CMS data is annual (published 18–24 months after reporting). IQVIA Xponent is weekly but expensive.</li>
+    </ul>
+    <h3>What's Surprisingly Good</h3>
+    <ul>
+      <li>The <strong>NPI Registry + Part D data</strong> combination gives a remarkably detailed picture of prescribing behavior — for free.</li>
+      <li><strong>Open Payments</strong> provides genuine financial relationship transparency that the industry treats as sensitive intelligence.</li>
+      <li><strong>Part B procedure volume data</strong> allows excellent identification of high-volume proceduralists by specialty.</li>
+    </ul>
+    <h3>Emerging Trends</h3>
+    <ul>
+      <li><strong>NPI as the universal join key:</strong> All major datasets now link on NPI — build any physician data system anchored to it.</li>
+      <li><strong>Real-world data explosion:</strong> De-identified patient-level claims driving a new generation of physician analytics beyond simple Rx counts.</li>
+      <li><strong>Health system consolidation:</strong> 50%+ of U.S. physicians are now health-system-employed — group practice and system-level targeting increasingly important.</li>
+    </ul>
+  </div>
+
+  <hr />
+
+  <!-- Sources -->
+  <div class="section" id="sources">
+    <h2>7. Cited Sources</h2>
+    <ul class="source-list">
+      <li class="source-item"><span class="source-num">01</span><div><strong>CMS NPPES NPI Registry</strong><a href="https://npiregistry.cms.hhs.gov" target="_blank">npiregistry.cms.hhs.gov</a></div></li>
+      <li class="source-item"><span class="source-num">02</span><div><strong>CMS Medicare Part D Prescriber Data</strong><a href="https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers" target="_blank">data.cms.gov</a></div></li>
+      <li class="source-item"><span class="source-num">03</span><div><strong>CMS Medicare Physician & Other Practitioners Utilization Data</strong><a href="https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners" target="_blank">data.cms.gov</a></div></li>
+      <li class="source-item"><span class="source-num">04</span><div><strong>CMS Open Payments (Sunshine Act)</strong><a href="https://openpaymentsdata.cms.gov" target="_blank">openpaymentsdata.cms.gov</a></div></li>
+      <li class="source-item"><span class="source-num">05</span><div><strong>CMS Provider Data Catalog</strong><a href="https://data.cms.gov/provider-characteristics" target="_blank">data.cms.gov</a></div></li>
+      <li class="source-item"><span class="source-num">06</span><div><strong>AMA Physician Masterfile</strong><a href="https://www.ama-assn.org/practice-management/masterfile/ama-physician-masterfile" target="_blank">ama-assn.org</a></div></li>
+      <li class="source-item"><span class="source-num">07</span><div><strong>IQVIA</strong><a href="https://www.iqvia.com" target="_blank">iqvia.com</a></div></li>
+      <li class="source-item"><span class="source-num">08</span><div><strong>Symphony Health (ICON)</strong><a href="https://www.symphonyhealth.com" target="_blank">symphonyhealth.com</a></div></li>
+      <li class="source-item"><span class="source-num">09</span><div><strong>Definitive Healthcare</strong><a href="https://www.definitivehc.com" target="_blank">definitivehc.com</a></div></li>
+      <li class="source-item"><span class="source-num">10</span><div><strong>Veeva OpenData</strong><a href="https://www.veeva.com/products/vault-crm/veeva-opendata/" target="_blank">veeva.com</a></div></li>
+      <li class="source-item"><span class="source-num">11</span><div><strong>Komodo Health</strong><a href="https://www.komodohealth.com" target="_blank">komodohealth.com</a></div></li>
+      <li class="source-item"><span class="source-num">12</span><div><strong>Doceree</strong><a href="https://www.doceree.com" target="_blank">doceree.com</a></div></li>
+      <li class="source-item"><span class="source-num">13</span><div><strong>Doximity Advertising</strong><a href="https://www.doximity.com/for/brands" target="_blank">doximity.com</a></div></li>
+      <li class="source-item"><span class="source-num">14</span><div><strong>Sorrell v. IMS Health Inc., 564 U.S. 552 (2011)</strong> — SCOTUS ruling on prescribing data as protected commercial speech</div></li>
+      <li class="source-item"><span class="source-num">15</span><div><strong>NUCC Health Care Provider Taxonomy Code Set</strong><a href="https://www.nucc.org/index.php/code-sets-mainmenu-41/provider-taxonomy-mainmenu-40" target="_blank">nucc.org</a></div></li>
+      <li class="source-item"><span class="source-num">16</span><div><strong>AMA Physician Data Restriction Program (PDRP)</strong><a href="https://www.ama-assn.org/practice-management/hipaa/physician-data-restriction-program-pdrp" target="_blank">ama-assn.org</a></div></li>
+      <li class="source-item"><span class="source-num">17</span><div><strong>CMS Open Payments Data Documentation</strong><a href="https://www.cms.gov/OpenPayments" target="_blank">cms.gov</a></div></li>
+    </ul>
+  </div>
+
+  <div class="report-footer">
+    <p>Report prepared by <span class="dee">🐦 Sweet Dee</span> — Research Agent · K2S0 Dev Team</p>
+    <p style="margin-top:0.3rem">February 25, 2026 · Research conducted via Exa neural search and domain knowledge synthesis</p>
+  </div>
+
+</div>
+</body>
+</html>

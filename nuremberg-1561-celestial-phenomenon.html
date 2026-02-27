@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Nuremberg Celestial Phenomenon of 1561</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e11;
+      --surface: #17151c;
+      --border: #2a2535;
+      --accent: #a855f7;
+      --accent2: #7f5af0;
+      --red: #c0392b;
+      --text: #e8e4f0;
+      --muted: #8b8499;
+      --subtle: #3d3550;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 17px;
+      line-height: 1.8;
+      padding-bottom: 4rem;
+    }
+
+    /* Header */
+    .hero {
+      background: linear-gradient(160deg, #1a0e2e 0%, #0f0e11 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '☀';
+      position: absolute;
+      font-size: 18rem;
+      opacity: 0.03;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-label {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: normal;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h1 em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .meta-item strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      margin: 2.5rem 0;
+    }
+
+    .toc-title {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .toc ol {
+      padding-left: 1.25rem;
+    }
+
+    .toc li {
+      margin-bottom: 0.3rem;
+    }
+
+    .toc a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+
+    .toc a:hover { color: var(--text); }
+
+    /* Summary box */
+    .summary-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.75rem 2rem;
+      margin: 2.5rem 0;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+
+    .summary-box .summary-label {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Sections */
+    .section {
+      margin: 3rem 0;
+      padding-top: 1rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: normal;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+      font-family: 'Georgia', serif;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      color: var(--text);
+      margin: 1.75rem 0 0.75rem;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-weight: 700;
+    }
+
+    p { margin-bottom: 1rem; }
+
+    strong { color: var(--text); }
+    em { color: #c9b8e8; }
+
+    /* Ordered/Unordered lists */
+    ol, ul {
+      padding-left: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    li { margin-bottom: 0.5rem; }
+
+    /* Blockquote */
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    blockquote em { color: var(--muted); }
+
+    /* Theory cards */
+    .theory-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+    }
+
+    .theory-card h3 { margin-top: 0; }
+
+    .theory-verdict {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      display: inline-block;
+      margin-bottom: 0.75rem;
+    }
+
+    .verdict-partial { background: rgba(244,208,63,0.12); color: #f4d03f; border: 1px solid rgba(244,208,63,0.3); }
+    .verdict-possible { background: rgba(14,165,233,0.1); color: #0ea5e9; border: 1px solid rgba(14,165,233,0.25); }
+    .verdict-favored { background: rgba(44,182,125,0.1); color: #2cb67d; border: 1px solid rgba(44,182,125,0.25); }
+    .verdict-limited { background: rgba(229,49,112,0.1); color: #e53170; border: 1px solid rgba(229,49,112,0.25); }
+
+    /* Assessment list */
+    .assessment-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .assessment-list li {
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      margin-bottom: 0.5rem;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .assessment-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 1rem;
+      top: 0.75rem;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    /* Sources */
+    .source-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .source-item {
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+    }
+
+    .source-item a {
+      color: var(--accent);
+      text-decoration: none;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.78rem;
+      display: block;
+      margin-top: 0.25rem;
+      word-break: break-all;
+    }
+
+    .source-item a:hover { text-decoration: underline; }
+
+    .source-num {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-right: 0.5rem;
+    }
+
+    /* Divider */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* Footer */
+    .report-footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+
+    .report-footer .dee { color: var(--accent); }
+
+    @media (max-width: 600px) {
+      body { font-size: 15px; }
+      .hero { padding: 2rem 1rem; }
+      .container { padding: 0 1rem; }
+      .hero-meta { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Research Report · Historical Phenomena</div>
+  <h1>The Nuremberg Celestial Phenomenon of <em>1561</em></h1>
+  <div class="hero-sub">A Comprehensive Research Report</div>
+  <div class="hero-meta">
+    <div class="meta-item"><strong>Prepared by:</strong> Sweet Dee (Research Agent)</div>
+    <div class="meta-item"><strong>Date:</strong> February 25, 2026</div>
+    <div class="meta-item"><strong>Classification:</strong> Historical Research / Anomalous Phenomena</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#reported">What Was Reported: April 14, 1561</a></li>
+      <li><a href="#broadsheet">The Hans Glaser Broadsheet and Woodcut</a></li>
+      <li><a href="#context">Historical Context</a></li>
+      <li><a href="#theories">Scientific and Naturalistic Theories</a></li>
+      <li><a href="#modern">Modern Interpretations</a></li>
+      <li><a href="#assessment">Critical Assessment</a></li>
+      <li><a href="#sources">Cited Sources</a></li>
+    </ol>
+  </nav>
+
+  <!-- Summary -->
+  <div class="summary-box" id="summary">
+    <div class="summary-label">Summary</div>
+    On the morning of April 14, 1561, residents of Nuremberg — a prominent Free Imperial City in the Holy Roman Empire — witnessed and reported a dramatic display of unidentified objects in the sky. Described as blood-red spheres, cylinders, crosses, and rods emerging from and around the sun, engaged in what witnesses interpreted as a violent aerial battle, the event lasted over an hour before the objects allegedly fell to earth in clouds of smoke, followed by the appearance of a massive black spear-shaped form. The event was documented shortly afterward by local artist and printer Hans Glaser in a woodcut broadsheet — now the primary historical source for the incident. Modern analysis has proposed natural explanations including atmospheric optical phenomena (particularly sun dogs and halos), possible meteor activity, and mass psychological/perceptual distortion, though no consensus explanation fully accounts for all described details. The event is widely considered one of the most striking pre-modern accounts of an unidentified aerial phenomenon and an important artifact of early print journalism.
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="reported">
+    <h2>1. What Was Reported: The Event of April 14, 1561</h2>
+
+    <h3>Time and Place</h3>
+    <p>The event occurred at <strong>dawn, between approximately 4:00 and 5:00 a.m.</strong>, in and around the city of <strong>Nuremberg</strong> (then <em>Nürnberg</em>), in the territory of the Holy Roman Empire in present-day Bavaria, Germany. Witnesses reportedly included residents within the city, at the city gates, and in the surrounding countryside.</p>
+
+    <h3>The Sequence of Events</h3>
+    <p>According to the broadsheet account (translated by Ilse Von Jacobi), the phenomenon unfolded as follows:</p>
+    <ol>
+      <li><strong>Initial apparition on the sun:</strong> Two blood-red semi-circular arcs appeared on the face of the sun, resembling a crescent moon. A large round ball — described as "partly dull, partly black ferrous color" — appeared near the sun.</li>
+      <li><strong>Multiplication of objects:</strong> Blood-red balls appeared in large numbers around the sun, arranged in geometric patterns: groups of three in a line, four in a square, and some alone. Crosses appeared between the globes, along with "blood-red strips" thickening toward the rear — described as resembling "rods of reed-grass."</li>
+      <li><strong>The battle:</strong> The objects began to move aggressively. Globes flew out from the sun toward those on the periphery; peripheral globes flew inward. They "fought vehemently with each other for over an hour."</li>
+      <li><strong>The fall:</strong> After the intense conflict, the objects apparently became "fatigued" and fell from the sun toward the earth, described as if they "all burned" and "wasted away on the earth with immense smoke."</li>
+      <li><strong>The black spear:</strong> After the aerial battle concluded, a large black object appeared — described as a spear or lance, "very long and thick," with its shaft pointing east and its point pointing west.</li>
+    </ol>
+
+    <h3>Scale of Witness Reports</h3>
+    <p>The broadsheet states the phenomenon was seen by "many men and women" — within the city, before the gates, and in the surrounding country. However, critically, Hans Glaser remains <strong>the only identified written source</strong>; no independent corroborating accounts from separate contemporaries have surfaced. This is a significant caveat on the scope of witness claims.</p>
+  </div>
+
+  <hr />
+
+  <!-- Section 2 -->
+  <div class="section" id="broadsheet">
+    <h2>2. The Hans Glaser Broadsheet and Woodcut</h2>
+
+    <h3>Who Was Hans Glaser?</h3>
+    <p>Hans Glaser (also spelled "Hanns Glaser") was a <strong>letter-painter</strong> (<em>briefmaler</em>) and broadsheet publisher working in Nuremberg. In the 16th century, illustrated broadsheets — single-sheet publications combining a woodcut image with explanatory text — were the mass media of their day. They reported battles, monstrous births, comets, floods, prodigies, and unusual events as both news and moral warning.</p>
+
+    <h3>The Physical Broadsheet</h3>
+    <ul>
+      <li><strong>Dimensions:</strong> 26.2 cm × 38.0 cm (approximately 10.3 × 15 inches)</li>
+      <li><strong>Format:</strong> Woodcut illustration above printed German text</li>
+      <li><strong>Date:</strong> Produced in <strong>April 1561</strong>, the same month as the reported event</li>
+      <li><strong>Current location:</strong> Archived in the prints and drawings collection at the <strong>Zentralbibliothek Zürich</strong> (Central Library of Zurich, Switzerland)</li>
+      <li><strong>Original language:</strong> Early Modern German (<em>Frühneuhochdeutsch</em>)</li>
+    </ul>
+
+    <h3>Description of the Woodcut</h3>
+    <p>The woodcut illustration is richly detailed, showing the city of Nuremberg in the lower portion with recognizable architectural features, and above it: blood-red spheres/globes in clusters, cylindrical or barrel-shaped objects from which smaller globes appear to emerge, cross shapes, two large crescent shapes flanking the sun, a black spear in the upper portion, and objects shown in various states of motion, some appearing to fall downward with smoke or flames suggested at the base.</p>
+
+    <h3>The Broadsheet Text: Theological Framing</h3>
+    <p>The full translated text concludes with an explicitly <strong>theological framing</strong>. Glaser does not interpret the event as a battle between physical entities in any modern sense; he presents it as a divine warning:</p>
+    <blockquote>
+      <em>"Whatever such signs mean, God alone knows... we still are, unfortunately, so ungrateful that we despise such high signs and miracles of God... the God-fearing will by no means discard these signs, but will take it to heart as a warning of their merciful Father in heaven, will mend their lives and faithfully beg God, that He may avert His wrath..."</em>
+    </blockquote>
+    <p>This moral-theological conclusion was entirely standard for broadsheet prodigy reports of the era. Glaser was not writing a UFO encounter report — <strong>he was writing a religious warning pamphlet</strong>.</p>
+  </div>
+
+  <hr />
+
+  <!-- Section 3 -->
+  <div class="section" id="context">
+    <h2>3. Historical Context</h2>
+
+    <h3>Nuremberg in 1561</h3>
+    <p>Nuremberg in the mid-16th century was one of the most important cities in the Holy Roman Empire — a prosperous Free Imperial City with a strong merchant class, a thriving print culture, and significant political weight. It had adopted Lutheranism in 1525 and was deeply embedded in the religious conflicts of the Reformation era.</p>
+
+    <h3>The Reformation and Apocalyptic Culture</h3>
+    <p>This event occurred during an extraordinarily turbulent period in European history. The Protestant Reformation had upended centuries of Catholic dominance. Wars, plagues, famines, and the very real threat of Ottoman expansion into central Europe created a pervasive atmosphere of anxiety and eschatological anticipation. <strong>Prodigies and celestial signs</strong> — comets, strange lights, unusual animal births, blood rains — were understood within a framework of divine communication. Contemporaries would not have been surprised by a dramatic celestial event; they would have been surprised <em>not</em> to see such things during such times.</p>
+
+    <h3>A Pattern of Similar Reports</h3>
+    <p>The Nuremberg event was not unique for its era. Just five years later, in <strong>August 1566</strong>, citizens of <strong>Basel, Switzerland</strong> reported a strikingly similar phenomenon: large black and red spheres fighting in the sky at dawn, documented in another woodcut broadsheet by Samuel Coccius. The close parallels between the two events — same visual vocabulary, same interpretive framework, same broadsheet format, same time of day — have led some scholars to view them as part of a <strong>genre of apocalyptic sky reporting</strong> rather than purely independent observations of identical phenomena.</p>
+  </div>
+
+  <hr />
+
+  <!-- Section 4 -->
+  <div class="section" id="theories">
+    <h2>4. Scientific and Naturalistic Theories</h2>
+
+    <div class="theory-card">
+      <h3>4.1 Atmospheric Optics: Sun Dogs (Parhelia)</h3>
+      <span class="theory-verdict verdict-partial">Partial explanation</span>
+      <p>The most frequently cited scientific explanation is a complex <strong>sun dog (parhelion) display</strong>, potentially combined with other atmospheric optical phenomena. Sun dogs form when sunlight refracts through plate-shaped ice crystals in high cirrus clouds. In complex conditions they can create elaborate halo complexes with dozens of distinct light features around the sun.</p>
+      <p><strong>Supporting factors:</strong> The event occurred at dawn (optimal geometry for sun dog formation); the blood-red coloration is consistent with atmospheric scattering at sunrise; multiple circular shapes around the sun are consistent with halo arc segments.</p>
+      <p><strong>Limitations:</strong> Sun dogs do not typically involve black objects, falling shapes, smoke, or a large black spear. Classical displays are fairly static — the extended "battle" lasting over an hour describes behavior unlike standard atmospheric optics. Wikipedia's own entry notes that "the print does not fit the usual classic description" of sun dog phenomena.</p>
+    </div>
+
+    <div class="theory-card">
+      <h3>4.2 Meteor Activity / Bolide Event</h3>
+      <span class="theory-verdict verdict-possible">Possible contributor</span>
+      <p>Some researchers have proposed that the event may have involved a <strong>meteor shower or bolide (fireball meteor) activity</strong>, possibly in combination with atmospheric optical effects. Bolide meteors can appear as bright objects streaking across the sky, leaving smoke trails. The "falling to earth with immense smoke" and the black spear (a persistent smoke trail) gain traction under this theory.</p>
+      <p>This does not easily explain the earlier static geometric arrangements of objects around the sun.</p>
+    </div>
+
+    <div class="theory-card">
+      <h3>4.3 Combination / Complex Event</h3>
+      <span class="theory-verdict verdict-favored">Most favored</span>
+      <p>Many researchers favor a <strong>multi-cause explanation</strong>: an unusual sun dog / atmospheric halo display occurring simultaneously with, or followed by, meteor activity. The witnesses — already primed by cultural expectations of divine signs — interpreted the combined display as a coherent battle narrative, imposing dramatic structure on what were actually separate atmospheric events.</p>
+    </div>
+
+    <div class="theory-card">
+      <h3>4.4 Mass Psychological / Perceptual Factors</h3>
+      <span class="theory-verdict verdict-limited">Contextual factor</span>
+      <p>Any evaluation must account for the <strong>perceptual and psychological context</strong> of observers: witnesses were looking into a rising sun (causing afterimages and visual distortion); cultural expectation primed interpretation of ambiguous stimuli; the account passed through Glaser's editorial hand shaped by genre conventions. None of this proves the event was purely imagined, but the final form of the report reflects the interpretive lens of 16th-century prodigy culture.</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Section 5 -->
+  <div class="section" id="modern">
+    <h2>5. Modern Interpretations</h2>
+
+    <h3>5.1 UFO / Extraterrestrial Hypothesis</h3>
+    <p>Since the mid-20th century, the Nuremberg event has been widely cited in UFO literature as evidence of pre-modern extraterrestrial contact. <strong>Evaluation:</strong> This interpretation requires reading the account as a literal description of physical craft while ignoring the genre context of the source. The broadsheet was a theological warning pamphlet. Applying 20th-century UFO categories retroactively to a 16th-century broadsheet is methodologically problematic — though the event does record <em>something</em> unusual in the sky that remains genuinely uncertain.</p>
+
+    <h3>5.2 Carl Jung's Psychological Interpretation</h3>
+    <p>The event gained wider modern attention when <strong>Carl Gustav Jung</strong> discussed it in his 1958 work <em>Flying Saucers: A Modern Myth of Things Seen in the Skies</em>. Jung argued that UFO sightings reflect <strong>collective psychological projections</strong> — specifically, the mandala archetype (circular forms representing psychic wholeness) arising from the collective unconscious during periods of anxiety. He saw the Nuremberg event as expressions of archetypal fears and hopes projected onto the heavens during the psychically turbulent Reformation period. Jung's engagement with the event was instrumental in rescuing it from obscurity.</p>
+
+    <h3>5.3 Early Print Media History</h3>
+    <p>Scholars of print culture approach the broadsheet as a <strong>significant artifact of early journalism</strong> — one of the earliest visually illustrated "news" reports of an anomalous event, a window into 16th-century media practices, and evidence of the public appetite for prodigy reporting. In this reading, the broadsheet's importance is documentary and cultural regardless of what was in the sky.</p>
+
+    <h3>5.4 Comparison with the 1566 Basel Phenomenon</h3>
+    <p>The 1566 Basel event — sharing dawn timing, blood-red spheres in apparent combat, broadsheet documentation, and theological framing — provides an important comparative case. Some researchers argue the shared vocabulary suggests a common phenomenon type; others suggest the Basel report may have been influenced by the Nuremberg broadsheet, illustrating how media patterns shape subsequent reporting.</p>
+  </div>
+
+  <hr />
+
+  <!-- Section 6 -->
+  <div class="section" id="assessment">
+    <h2>6. Critical Assessment</h2>
+    <ul class="assessment-list">
+      <li data-n="1"><strong>Something was observed.</strong> The dawn timing, multiple witnesses, and specificity of some descriptions suggest a real atmospheric or astronomical event as the trigger.</li>
+      <li data-n="2"><strong>The account is filtered through multiple layers.</strong> Perceptual limits of dawn observation, cultural expectation, broadsheet genre conventions, and Glaser's editorial hand all shaped the final form of the report.</li>
+      <li data-n="3"><strong>No single natural explanation is fully satisfying.</strong> Sun dogs explain much but not all. Meteor activity explains some elements but not others. The full account may require a combination of causes.</li>
+      <li data-n="4"><strong>The extraterrestrial interpretation is anachronistic.</strong> Projecting modern UFO frameworks onto a 16th-century prodigy broadsheet ignores the source's genre context and rhetorical purpose.</li>
+      <li data-n="5"><strong>The event's cultural significance is real regardless of its physical cause.</strong> It stands as a remarkable document of how humans narrate, visualize, and make moral meaning from the incomprehensible.</li>
+    </ul>
+  </div>
+
+  <hr />
+
+  <!-- Section 7 -->
+  <div class="section" id="sources">
+    <h2>7. Cited Sources</h2>
+    <ul class="source-list">
+      <li class="source-item"><span class="source-num">01</span><strong>Public Domain Review</strong> — "Celestial Phenomenon Over Nuremberg, April 14th, 1561" (April 14, 2016). Full translated broadsheet text and high-resolution woodcut.<a href="https://publicdomainreview.org/collection/celestial-phenomenon-over-nuremberg-april-14th-1561/" target="_blank">publicdomainreview.org</a></li>
+      <li class="source-item"><span class="source-num">02</span><strong>Wikipedia</strong> — "1561 celestial phenomenon over Nuremberg."<a href="https://en.wikipedia.org/wiki/1561_celestial_phenomenon_over_Nuremberg" target="_blank">en.wikipedia.org</a></li>
+      <li class="source-item"><span class="source-num">03</span><strong>Grokipedia</strong> — "1561 celestial phenomenon over Nuremberg." Reformation-era significance and print culture context.<a href="https://grokipedia.com/page/1561_celestial_phenomenon_over_Nuremberg" target="_blank">grokipedia.com</a></li>
+      <li class="source-item"><span class="source-num">04</span><strong>UFO Info UK</strong> — "1561 Nuremberg Incident" (January 2025). Overview of all major interpretive theories.<a href="https://ufoinfo.org.uk/1561-nuremberg-incident/" target="_blank">ufoinfo.org.uk</a></li>
+      <li class="source-item"><span class="source-num">05</span><strong>Boing Boing</strong> — "Celestial Phenomenon Over Nuremberg, April 14th, 1561" (February 15, 2025). Highlights Carl Jung's engagement.<a href="https://boingboing.net/2025/02/15/celestial-phenomenon-over-nuremberg-april-14th-1561-a-fascinating-woodcut-and-mystery.html" target="_blank">boingboing.net</a></li>
+      <li class="source-item"><span class="source-num">06</span><strong>Eternalised</strong> — "Carl Jung on UFOs: Symbols of Collective Fear and Hope" (July 5, 2024). Detailed analysis of Jung's <em>Flying Saucers</em>.<a href="https://eternalisedofficial.com/2024/07/05/the-psychology-of-ufos/" target="_blank">eternalisedofficial.com</a></li>
+      <li class="source-item"><span class="source-num">07</span><strong>Jacob Wilkins, Medium / Lessons from History</strong> — "The Nuremberg UFO Sighting of 1561" (November 18, 2020).<a href="https://medium.com/lessons-from-history/the-nuremberg-ufo-sighting-of-1561-4078ecfcd946" target="_blank">medium.com</a></li>
+      <li class="source-item"><span class="source-num">08</span><strong>Wikipedia</strong> — "1566 celestial phenomenon over Basel." Comparative case.<a href="https://en.wikipedia.org/wiki/1566_celestial_phenomenon_over_Basel" target="_blank">en.wikipedia.org</a></li>
+      <li class="source-item"><span class="source-num">09</span><strong>Swiss National Museum Blog</strong> — "The celestial event over Basel in 1566" by James Blake Wiener (July 30, 2024).<a href="https://blog.nationalmuseum.ch/en/2024/07/the-celestial-event-over-basel-in-1566/" target="_blank">blog.nationalmuseum.ch</a></li>
+      <li class="source-item"><span class="source-num">10</span><strong>Wikipedia</strong> — "Sun dog." Background on atmospheric optical phenomena.<a href="https://en.wikipedia.org/wiki/Sun_dog" target="_blank">en.wikipedia.org</a></li>
+      <li class="source-item"><span class="source-num">11</span><strong>Carl Gustav Jung</strong> — <em>Flying Saucers: A Modern Myth of Things Seen in the Skies</em> (1958). Princeton/Bollingen. Trans. R.F.C. Hull. The foundational modern scholarly engagement with the Nuremberg event.</li>
+      <li class="source-item"><span class="source-num">12</span><strong>Zentralbibliothek Zürich</strong> — Original broadsheet document, prints and drawings collection.<a href="https://www.e-manuscripta.ch/" target="_blank">e-manuscripta.ch</a></li>
+      <li class="source-item"><span class="source-num">13</span><strong>Public Domain Image Archive</strong> — High-resolution scan of the Glaser woodcut.<a href="https://pdimagearchive.org/images/13e6b633-9551-48a1-8dc8-87f8139fdf97" target="_blank">pdimagearchive.org</a></li>
+    </ul>
+  </div>
+
+  <div class="report-footer">
+    <p>Report filed: February 25, 2026 · Research conducted via Exa neural search and web content analysis</p>
+    <p style="margin-top:0.5rem"><span class="dee">🐦 Sweet Dee</span> — Research Agent · K2S0 Dev Team</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Design Tools Research — Cricket's Toolkit</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e11;
+      --surface: #17151c;
+      --surface2: #1e1b26;
+      --border: #2a2535;
+      --accent: #a855f7;
+      --accent2: #7f5af0;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --blue: #3b82f6;
+      --text: #e8e4f0;
+      --muted: #8b8499;
+      --subtle: #3d3550;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      padding-bottom: 5rem;
+    }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(160deg, #1a0e2e 0%, #0f0e11 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '✦';
+      position: absolute;
+      font-size: 22rem;
+      opacity: 0.025;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      color: var(--accent);
+    }
+
+    .hero-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h1 em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hero-meta span { color: var(--text); }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ── NAV BAR ──────────────────────────────────────────── */
+    .section-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(15,14,17,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .section-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .section-nav a:hover { color: var(--text); background: var(--subtle); }
+
+    /* ── SUMMARY BOX ──────────────────────────────────────── */
+    .summary-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.5rem 1.75rem;
+      margin: 2.5rem 0;
+    }
+
+    .summary-box p { color: var(--muted); line-height: 1.8; }
+    .summary-box p strong { color: var(--text); }
+
+    /* ── SECTION HEADERS ──────────────────────────────────── */
+    .section-header {
+      margin: 3.5rem 0 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-header .icon {
+      font-size: 1.5rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .section-header .cat {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-left: auto;
+    }
+
+    /* ── TOOL CARD ────────────────────────────────────────── */
+    .tool-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .tool-card:hover { border-color: var(--subtle); }
+
+    .tool-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .tool-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .tool-name a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .tool-name a:hover { color: var(--accent); }
+
+    .tool-badges {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .badge-api-yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .badge-api-no { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+    .badge-api-partial { background: rgba(234,179,8,0.12); color: var(--yellow); border: 1px solid rgba(234,179,8,0.25); }
+    .badge-free { background: rgba(168,85,247,0.12); color: var(--accent); border: 1px solid rgba(168,85,247,0.25); }
+    .badge-paid { background: rgba(100,100,120,0.15); color: var(--muted); border: 1px solid var(--border); }
+    .badge-rec { background: rgba(168,85,247,0.2); color: var(--accent); border: 1px solid rgba(168,85,247,0.4); }
+
+    .tool-desc {
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.7;
+    }
+
+    .tool-desc strong { color: var(--text); }
+
+    /* ── FIELD ROWS ───────────────────────────────────────── */
+    .field {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0.5rem 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .field { grid-template-columns: 1fr; }
+    }
+
+    .field-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      padding-top: 0.1rem;
+    }
+
+    .field-value { color: var(--muted); }
+    .field-value strong { color: var(--text); }
+    .field-value a { color: var(--accent2); font-size: 0.82rem; }
+
+    /* ── PRICING TABLE ────────────────────────────────────── */
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 0.75rem 0;
+    }
+
+    .price-table th {
+      text-align: left;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-table td {
+      padding: 0.5rem 0.75rem;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(42,37,53,0.5);
+      vertical-align: top;
+    }
+
+    .price-table td strong { color: var(--text); }
+
+    .price-table tr:last-child td { border-bottom: none; }
+    .price-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── LIMITATIONS LIST ─────────────────────────────────── */
+    .limit-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .limit-list li {
+      font-size: 0.88rem;
+      color: var(--muted);
+      padding: 0.2rem 0 0.2rem 1.25rem;
+      position: relative;
+    }
+
+    .limit-list li::before {
+      content: '⚠';
+      position: absolute;
+      left: 0;
+      font-size: 0.75rem;
+      color: var(--yellow);
+      top: 0.25rem;
+    }
+
+    /* ── RECOMMENDATION SECTION ───────────────────────────── */
+    .rec-section {
+      background: linear-gradient(135deg, #1a0e2e 0%, #17151c 100%);
+      border: 1px solid rgba(168,85,247,0.3);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin: 3rem 0;
+    }
+
+    .rec-section h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .rec-section .rec-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .rec-trio {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .rec-card {
+      background: rgba(15,14,17,0.6);
+      border: 1px solid rgba(168,85,247,0.2);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .rec-card .rec-rank {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    .rec-card .rec-tool {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .rec-card .rec-role {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .rec-card .rec-cost {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .rec-card .rec-why {
+      font-size: 0.83rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      line-height: 1.6;
+    }
+
+    /* ── COST SUMMARY ─────────────────────────────────────── */
+    .cost-summary {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .cost-summary .cost-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(42,37,53,0.5);
+    }
+
+    .cost-summary .cost-row:last-child {
+      border-bottom: none;
+      padding-top: 0.6rem;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .cost-summary .cost-row span:last-child { color: var(--text); }
+    .cost-summary .cost-row:last-child span:last-child { color: var(--accent); }
+
+    .skip-note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .skip-note h4 {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .skip-note ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .skip-note li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 0.2rem 0 0.2rem 1.2rem;
+      position: relative;
+    }
+
+    .skip-note li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--subtle);
+    }
+
+    .skip-note strong { color: var(--text); }
+
+    /* ── SOURCES ──────────────────────────────────────────── */
+    .sources {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .sources h3 {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .sources ol {
+      list-style: decimal;
+      padding-left: 1.5rem;
+    }
+
+    .sources li {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0.2rem 0;
+    }
+
+    .sources a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
+    .sources a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ───────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem 1rem;
+      font-size: 0.78rem;
+      color: var(--subtle);
+    }
+
+    .footer em { color: var(--muted); }
+
+    /* ── DIVIDER ──────────────────────────────────────────── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-label">K2S0 Dev Team · Research Report</div>
+  <h1>AI Design Tools for <em>Cricket</em></h1>
+  <div class="hero-sub">Graphics, UI/UX & General Design — 2026 Edition</div>
+  <div class="hero-meta">
+    <div>Prepared by <span>Sweet Dee</span></div>
+    <div>For <span>Cricket (Designer Agent)</span></div>
+    <div>Date <span>February 27, 2026</span></div>
+    <div>Status <span>Complete</span></div>
+  </div>
+</div>
+
+<!-- ═══ NAV ════════════════════════════════════════════════════════════ -->
+<nav class="section-nav">
+  <a href="#summary">Summary</a>
+  <a href="#graphics">Part 1: Image Gen</a>
+  <a href="#uiux">Part 2: UI/UX</a>
+  <a href="#general">Part 3: General Design</a>
+  <a href="#recommendation">Recommended Stack</a>
+  <a href="#sources">Sources</a>
+</nav>
+
+<!-- ═══ CONTENT ════════════════════════════════════════════════════════ -->
+<div class="container">
+
+  <!-- Summary -->
+  <div id="summary" class="summary-box">
+    <p>
+      <strong>TL;DR —</strong> The AI design tool market in 2026 is mature and genuinely good. 
+      This report covers 10 tools across image generation, UI/UX design, and general design, 
+      with verified pricing and API access. For Cricket, the recommended stack is 
+      <strong>Figma AI + Galileo AI + Ideogram</strong> — covering design environment, 
+      rapid UI prototyping, and programmatic image generation at roughly <strong>$52/mo</strong> 
+      fully loaded (or free to start with the generous free tiers).
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- PART 1: GRAPHICS / IMAGE GENERATION                           -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div id="graphics" class="section-header">
+    <span class="icon">🎨</span>
+    <h2>Part 1 — AI Graphics & Image Generation Tools</h2>
+    <span class="cat">4 Tools</span>
+  </div>
+
+  <!-- MIDJOURNEY -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://midjourney.com" target="_blank">Midjourney</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-no">No Official API</span>
+        <span class="badge badge-paid">Paid Only</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      The <strong>gold standard for artistic image generation</strong>. Midjourney produces strikingly 
+      creative visuals — concept art, editorial illustrations, surreal scenes, product mockups — 
+      with a distinctive aesthetic that's hard to replicate. Available via Discord and the Midjourney web app.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Monthly</th><th>GPU Hours</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Basic</strong></td><td>$10/mo</td><td>~3.3 hr</td><td>—</td></tr>
+            <tr><td><strong>Standard</strong></td><td>$30/mo</td><td>~15 hr</td><td>+ Relax Mode</td></tr>
+            <tr><td><strong>Pro</strong></td><td>$60/mo</td><td>~30 hr</td><td>+ Stealth Mode</td></tr>
+            <tr><td><strong>Mega</strong></td><td>$120/mo</td><td>~60 hr</td><td>+ Stealth Mode</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">High-quality artistic images, concept art, mood boards, editorial illustration, hero images</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>No official API — third-party wrappers (MidAPI.ai, Apiframe) are unofficial and fragile</li>
+          <li>No reliable text rendering in images</li>
+          <li>Images are public by default on Basic/Standard plans</li>
+          <li>Discord-native UX; web app is newer and less feature-complete</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">❌ <strong>No official API.</strong> Third-party unofficial wrappers only — not recommended for production agent workflows.</div>
+    </div>
+  </div>
+
+  <!-- DALL-E / GPT-IMAGE -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://openai.com/api" target="_blank">DALL-E 3 / GPT-Image-1 (OpenAI)</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-yes">✓ Full API</span>
+        <span class="badge badge-free">Free via ChatGPT</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      OpenAI's image generation available via ChatGPT and the developer API. 
+      <strong>GPT-Image-1</strong> (released April 2025) is natively multimodal and token-priced. 
+      Excels at instruction-following — you can describe exactly what you want and it delivers. 
+      Best API story of any image generator. Strong for programmatic workflows and agent integration.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Access</th><th>Cost</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>ChatGPT Free</strong></td><td>$0</td><td>Limited image generations</td></tr>
+            <tr><td><strong>ChatGPT Plus</strong></td><td>$20/mo</td><td>Full DALL-E / GPT-Image UI access</td></tr>
+            <tr><td><strong>API — Low quality</strong></td><td>~$0.01/image</td><td>Drafts, thumbnails</td></tr>
+            <tr><td><strong>API — Medium quality</strong></td><td>~$0.04/image</td><td>Standard production</td></tr>
+            <tr><td><strong>API — High quality</strong></td><td>~$0.08–0.12/image</td><td>Final assets</td></tr>
+          </tbody>
+        </table>
+        <small style="color:var(--muted)">Token-based: Text input $5/1M, Image input $10/1M, Image output $40/1M tokens</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Programmatic image generation in agent workflows, instruction-following visuals, generating assets at scale via API</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Less artistically distinctive than Midjourney for purely creative work</li>
+          <li>Token costs can accumulate at high volume</li>
+          <li>Inconsistent on complex photorealistic scenes</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">✅ <strong>Yes — full REST API.</strong> Best developer story among image generators. Pay-as-you-go per image.</div>
+    </div>
+  </div>
+
+  <!-- ADOBE FIREFLY -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://firefly.adobe.com" target="_blank">Adobe Firefly</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-partial">API (Enterprise)</span>
+        <span class="badge badge-free">Free Tier</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      Adobe's generative AI platform for images, vectors, and video. 
+      <strong>Commercially safe</strong> — trained exclusively on Adobe Stock, licensed content, 
+      and public domain material. Deep integration with Photoshop (generative fill), Illustrator 
+      (vector generation), and the full Creative Cloud suite.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Cost</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Free</strong></td><td>$0</td><td>Limited monthly generative credits at firefly.adobe.com</td></tr>
+            <tr><td><strong>Firefly Standard</strong></td><td>~$9.99/mo</td><td>Standalone plan, more credits</td></tr>
+            <tr><td><strong>Creative Cloud Individual</strong></td><td>~$59.99/mo</td><td>Full CC suite + generous Firefly credits</td></tr>
+            <tr><td><strong>Firefly Services (API)</strong></td><td>Enterprise / Custom</td><td>Developer + production API access</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Commercial-safe asset generation, teams already in the Adobe ecosystem, Photoshop generative fill workflows</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Trained on stock imagery — results can feel "stock-y" and less creatively adventurous</li>
+          <li>API is enterprise-tier, not self-serve like OpenAI</li>
+          <li>Ongoing legal controversy around training data (active lawsuits as of Feb 2026)</li>
+          <li>Full power requires Creative Cloud subscription (~$60/mo)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">✅ <strong>Yes (enterprise).</strong> Firefly Services API available for developers — requires application and Adobe partnership. <a href="https://developer.adobe.com/firefly-services/docs/guides/get-started/">developer.adobe.com</a></div>
+    </div>
+  </div>
+
+  <!-- IDEOGRAM -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://ideogram.ai" target="_blank">Ideogram</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-yes">✓ API Available</span>
+        <span class="badge badge-free">Free Tier</span>
+        <span class="badge badge-rec">⭐ Recommended</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      The standout tool for <strong>text-in-image generation</strong> — logos, typographic designs, 
+      social graphics, posters, anything where legible readable text must appear inside the image. 
+      Also excellent for general photorealistic and stylized images. Generous free tier, solid API 
+      with per-image billing.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Monthly</th><th>Annual</th><th>Credits/mo</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Free</strong></td><td>$0</td><td>—</td><td>10 slow credits/week (~40 images/week)</td></tr>
+            <tr><td><strong>Plus</strong></td><td>$20/mo</td><td>$180/yr ($15/mo)</td><td>1,000 priority (~8,000 images/mo)</td></tr>
+            <tr><td><strong>Pro</strong></td><td>$60/mo</td><td>$504/yr ($42/mo)</td><td>3,500 priority (~28,000 images/mo)</td></tr>
+            <tr><td><strong>Team</strong></td><td>$30/member/mo</td><td>$240/member/yr</td><td>1,500/member (~12,000 images/mo)</td></tr>
+          </tbody>
+        </table>
+        <small style="color:var(--muted)">Basic plan is legacy — no longer available for new users.</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Text-in-image (logos, banners, labels), social media graphics, brand visuals, icons, programmatic asset generation via API</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Not quite Midjourney's level on purely artistic/photographic imagery</li>
+          <li>API is newer and still maturing</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">✅ <strong>Yes — Ideogram API</strong> with per-image pricing. Volume discounts available for annual commitments. <a href="https://ideogram.ai/features/api-pricing">ideogram.ai/features/api-pricing</a></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- PART 2: UI/UX DESIGN TOOLS                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div id="uiux" class="section-header">
+    <span class="icon">🖥</span>
+    <h2>Part 2 — AI UI/UX Design Tools</h2>
+    <span class="cat">4 Tools</span>
+  </div>
+
+  <!-- FIGMA AI -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://figma.com" target="_blank">Figma + Figma AI</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-partial">File API ✓</span>
+        <span class="badge badge-free">Free Tier</span>
+        <span class="badge badge-rec">⭐ Recommended</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      The <strong>industry-standard UI/UX design platform</strong>. Figma AI layers generative 
+      capabilities on top of an already world-class tool: text-to-prototype (Figma Make), 
+      AI component suggestions, design generation from prompts, Figma Buzz (on-brand asset scaling), 
+      Figma Sites (publish responsive websites), and Figma Draw (vector illustration). 
+      The tool every designer, PM, and developer already knows.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Full Seat</th><th>Dev Seat</th><th>Collab Seat</th><th>AI Credits</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Starter (Free)</strong></td><td>$0</td><td>—</td><td>—</td><td>150/day, 500/mo</td></tr>
+            <tr><td><strong>Professional</strong></td><td>$16/mo</td><td>$12/mo</td><td>$3/mo</td><td>3,000/mo</td></tr>
+            <tr><td><strong>Organization</strong></td><td>$55/mo</td><td>$25/mo</td><td>$5/mo</td><td>3,500/mo</td></tr>
+            <tr><td><strong>Enterprise</strong></td><td>Custom</td><td>—</td><td>—</td><td>Custom</td></tr>
+          </tbody>
+        </table>
+        <small style="color:var(--muted)">Prices billed annually. AI credits shared across all Figma AI features.</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Primary design environment for all UI/UX work — wireframes, prototypes, design systems, component libraries, developer handoff</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>AI credits can run out fast on complex projects (especially on free tier)</li>
+          <li>Figma Make (text-to-code) is promising but still maturing</li>
+          <li>No public API for AI features specifically (file API only)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">✅ <strong>Robust REST API for file/design access.</strong> MCP server available for dev workflow integration. No API for the AI generation features themselves.</div>
+    </div>
+  </div>
+
+  <!-- GALILEO AI -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://usegalileo.ai" target="_blank">Galileo AI</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-no">No API</span>
+        <span class="badge badge-paid">Paid</span>
+        <span class="badge badge-rec">⭐ Recommended</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      Text or image prompt → <strong>fully designed, high-fidelity UI screens</strong>. 
+      Galileo specializes in generating complete, beautiful UI designs from a description — 
+      not rough wireframes, but polished, production-quality mockups. Trained on thousands of 
+      exceptional UI designs. Exports directly to Figma for refinement. Generates both web and mobile UI.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Monthly (annual)</th><th>Credits/mo</th><th>Generations</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Standard</strong></td><td>$16/mo ($192/yr)</td><td>1,200</td><td>~120 designs</td></tr>
+            <tr><td><strong>Pro</strong></td><td>$32/mo ($384/yr)</td><td>3,000</td><td>~300 designs + Private Mode</td></tr>
+          </tbody>
+        </table>
+        <small style="color:var(--muted)">Unlimited Figma exports and code exports on all plans. Commercial use included.</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Rapid UI ideation, first-pass high-fidelity mockups from brief descriptions, client presentations, design exploration before Figma polish</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>No public API — UI generation only via web interface</li>
+          <li>~$0.13/generation on Standard — costs add up at volume</li>
+          <li>Less suited for deep iterative design work; best as a starting point</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">❌ <strong>No public API available.</strong></div>
+    </div>
+  </div>
+
+  <!-- UIZARD -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://uizard.io" target="_blank">Uizard</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-no">No API</span>
+        <span class="badge badge-free">Free Tier</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      AI-powered wireframing and prototyping platform. Uizard's <strong>Autodesigner 2.0</strong> generates 
+      full multi-screen app/web prototypes from text prompts. Also supports 
+      screenshot scanning (turn a screenshot into editable mockup) and wireframe scanning 
+      (digitize hand-drawn wireframes). Designed for non-designers and rapid ideation.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Cost</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Free</strong></td><td>$0</td><td>Limited projects and features</td></tr>
+            <tr><td><strong>Pro</strong></td><td>~$15/creator/mo (annual)</td><td>All premium templates, unlimited exports</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Non-designers needing quick wireframes, converting screenshots to editable designs, rapid low-to-mid fidelity prototyping</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Output quality lower than Galileo for high-fidelity work</li>
+          <li>No native Figma export</li>
+          <li>No API</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">❌ <strong>No public API.</strong></div>
+    </div>
+  </div>
+
+  <!-- VISILY -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://visily.ai" target="_blank">Visily</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-no">No API</span>
+        <span class="badge badge-free">Free Tier</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      AI wireframe and prototyping tool with text-to-design, screenshot-to-design, 
+      and <strong>AI Deep Design</strong> capabilities. Focused on making wireframing accessible 
+      to anyone. Includes a component library, template marketplace, and collaborative editing. 
+      Most affordable paid UI/UX AI tool on this list.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Cost</th><th>AI Credits/mo</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Starter (Free)</strong></td><td>$0</td><td>300/workspace, 2 editable boards</td></tr>
+            <tr><td><strong>Pro</strong></td><td>$11/editor/mo (annual)</td><td>3,000/editor, unlimited boards</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Budget-conscious wireframing, screenshot-to-editable-design conversions, quick UI ideation with team collaboration</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Component library less mature than Figma</li>
+          <li>Less established than Figma or Uizard — smaller community</li>
+          <li>No API</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">❌ <strong>No public API.</strong></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- PART 3: GENERAL DESIGN TOOLS                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div id="general" class="section-header">
+    <span class="icon">📐</span>
+    <h2>Part 3 — AI General Design Tools</h2>
+    <span class="cat">3 Tools</span>
+  </div>
+
+  <!-- CANVA -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://canva.com" target="_blank">Canva AI (Magic Studio)</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-partial">API (Enterprise)</span>
+        <span class="badge badge-free">Free Tier</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      The dominant all-in-one visual design platform for non-designers. 
+      <strong>Magic Studio</strong> bundles AI image generation, Magic Resize (auto-adapt to any format), 
+      background removal, AI text generation, animated designs, and Magic Switch (format conversion). 
+      190+ million monthly active users. The go-to tool for marketing materials, social media, presentations, and content.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Cost</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Free</strong></td><td>$0</td><td>Limited AI, 1.6M+ templates, 5GB storage</td></tr>
+            <tr><td><strong>Pro</strong></td><td>$15/mo (or ~$120/yr)</td><td>Full Magic Studio AI, 100GB storage, Brand Kit</td></tr>
+            <tr><td><strong>Teams</strong></td><td>$20/seat/mo</td><td>Collaboration, advanced brand controls</td></tr>
+            <tr><td><strong>Enterprise</strong></td><td>Custom</td><td>SSO, security, custom integrations</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Marketing materials, social media graphics, presentations, documents, video content, team brand consistency at scale</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Not a precision UI/UX tool — no design systems or component libraries</li>
+          <li>AI image generation quality decent but below Midjourney/Ideogram tier</li>
+          <li>API is enterprise-focused, not a general image-gen endpoint</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">✅ <strong>Canva Connect APIs</strong> (REST) and Apps SDK — primarily for enterprise integrations and platform embeds. Not a general image generation API. <a href="https://www.canva.dev/docs/connect/">canva.dev/docs/connect</a></div>
+    </div>
+  </div>
+
+  <!-- ADOBE EXPRESS -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://adobe.com/express" target="_blank">Adobe Express</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-no">No Standalone API</span>
+        <span class="badge badge-free">Free Tier</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      Adobe's lightweight template-based design tool for non-designers. Integrates with 
+      Creative Cloud assets and Firefly AI (generative fill, text effects, image generation, 
+      background removal). Great for social posts, short videos, flyers, and marketing assets 
+      — especially if already in the Adobe ecosystem.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Plan</th><th>Cost</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Free</strong></td><td>$0</td><td>Basic features, limited AI credits</td></tr>
+            <tr><td><strong>Premium</strong></td><td>~$9.99/mo (annual)</td><td>Full AI, premium templates, Creative Cloud assets</td></tr>
+            <tr><td><strong>Included with CC</strong></td><td>Bundled</td><td>All Creative Cloud plans include Express Premium</td></tr>
+          </tbody>
+        </table>
+        <small style="color:var(--muted)">Some sources cite $22.99/mo for standalone monthly billing — annual plan is ~$9.99/mo.</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Quick social media graphics, marketing materials, branded templates — best value when already in the Adobe ecosystem</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>No standalone Express API — programmatic work requires Firefly Services (enterprise)</li>
+          <li>Less template variety than Canva</li>
+          <li>Redundant if not already using Adobe CC</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">❌ <strong>No standalone Express API.</strong> Use Adobe Firefly Services API for programmatic generation (enterprise only).</div>
+    </div>
+  </div>
+
+  <!-- LOOKA -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <div class="tool-name"><a href="https://looka.com" target="_blank">Looka</a></div>
+      <div class="tool-badges">
+        <span class="badge badge-api-no">No API</span>
+        <span class="badge badge-paid">One-time / Subscription</span>
+      </div>
+    </div>
+    <div class="tool-desc">
+      AI-powered logo maker and brand identity generator. Enter your company name, 
+      industry, and style preferences — Looka generates logo options and builds a 
+      <strong>Brand Kit</strong> (social templates, business cards, email signatures) 
+      around the chosen logo. Good for going from zero to "we have a brand" quickly. 
+      Not a full design tool — purpose-built for brand identity.
+    </div>
+
+    <div class="field">
+      <div class="field-label">Pricing</div>
+      <div class="field-value">
+        <table class="price-table">
+          <thead><tr><th>Package</th><th>Cost</th><th>What You Get</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Logo Basic</strong></td><td>~$20 (one-time)</td><td>PNG files for web use only</td></tr>
+            <tr><td><strong>Logo Premium</strong></td><td>~$65 (one-time)</td><td>All file formats, vector files, full commercial license</td></tr>
+            <tr><td><strong>Brand Kit</strong></td><td>~$96/yr ($8/mo)</td><td>Logo + 300+ branded social/marketing templates</td></tr>
+            <tr><td><strong>Brand Kit + Web</strong></td><td>~$129/yr</td><td>Brand Kit + simple branded website</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Best Use</div>
+      <div class="field-value">Starting a new brand identity, generating a logo + brand kit quickly, creating consistent social templates around a brand</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Limitations</div>
+      <div class="field-value">
+        <ul class="limit-list">
+          <li>Not a full design tool — limited to logo and brand output</li>
+          <li>Generated logos can feel generic without extensive customization</li>
+          <li>No API</li>
+          <li>Limited logo editing capability within the platform</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">API Access</div>
+      <div class="field-value">❌ <strong>No API available.</strong></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- RECOMMENDED STACK                                             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div id="recommendation" class="rec-section">
+    <h2>🏆 Recommended Stack for Cricket</h2>
+    <p class="rec-sub">Best combination of quality, cost, and API access for the K2S0 design workflow.</p>
+
+    <div class="rec-trio">
+      <div class="rec-card">
+        <div class="rec-rank">Tool 1 · Primary Design Environment</div>
+        <div class="rec-tool">Figma + Figma AI</div>
+        <div class="rec-role">UI/UX Design, Wireframing, Prototyping, Dev Handoff</div>
+        <div class="rec-cost">Free → $16/mo (Professional)</div>
+        <div class="rec-why">
+          Industry standard. Unmatched ecosystem — plugins, design systems, component libraries, 
+          MCP server integration, and the only tool every dev and designer already knows. 
+          Start free; upgrade to Professional when AI credit limits bite. Non-negotiable as the primary tool.
+        </div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-rank">Tool 2 · Rapid UI Generation</div>
+        <div class="rec-tool">Galileo AI</div>
+        <div class="rec-role">Prompt → Polished UI Mockup → Figma Export</div>
+        <div class="rec-cost">$16/mo (Standard, annual)</div>
+        <div class="rec-why">
+          When Cricket gets a brief like "design a task tracking dashboard," Galileo generates 
+          a production-quality UI mockup in seconds — then exports directly to Figma for polish. 
+          Converts 8 hours of blank-artboard work to 30 minutes of refinement. Huge productivity win.
+        </div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-rank">Tool 3 · Asset & Image Generation</div>
+        <div class="rec-tool">Ideogram</div>
+        <div class="rec-role">Image Gen, Text-in-Images, Visual Assets via API</div>
+        <div class="rec-cost">Free → $20/mo (Plus)</div>
+        <div class="rec-why">
+          Best-in-class for text-in-image (logos, social graphics, labeled icons). 
+          Has a real API for programmatic generation — critical for agent workflows. 
+          Generous free tier (~40 images/week) is enough to start. Plus plan unlocks 
+          8,000 images/month at $20/mo.
+        </div>
+      </div>
+    </div>
+
+    <div class="cost-summary">
+      <div class="cost-row"><span>Figma AI (Professional)</span><span>$16/mo</span></div>
+      <div class="cost-row"><span>Galileo AI (Standard)</span><span>$16/mo</span></div>
+      <div class="cost-row"><span>Ideogram (Plus)</span><span>$20/mo</span></div>
+      <div class="cost-row"><span><strong>Total estimated monthly cost</strong></span><span><strong>~$52/mo</strong></span></div>
+    </div>
+
+    <div class="skip-note">
+      <h4>Why Not the Others?</h4>
+      <ul>
+        <li><strong>Midjourney</strong> — Best art, but no real API and public images on lower plans. Skip for agent workflows.</li>
+        <li><strong>OpenAI gpt-image-1</strong> — Strong API alternative to Ideogram. If K2S0 team is already deep in OpenAI tooling, swap in for Ideogram. API per-image ~$0.04 medium quality.</li>
+        <li><strong>Canva</strong> — Better for marketing/social at scale. Add Pro ($15/mo) if Cricket handles lots of marketing materials. Otherwise covered by Figma.</li>
+        <li><strong>Adobe Firefly</strong> — Worth it only if Adobe CC is already in the stack. Commercial-safe but less creative; API is enterprise-only.</li>
+        <li><strong>Uizard / Visily</strong> — Good budget wireframe tools, outclassed by Figma+Galileo combo.</li>
+        <li><strong>Looka</strong> — Useful one-off for generating a brand kit for a new project (~$65 one-time). Not a recurring tool.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SOURCES                                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div id="sources" class="sources">
+    <h3>Sources</h3>
+    <ol>
+      <li><a href="https://docs.midjourney.com/hc/en-us/articles/27870484040333-Comparing-Midjourney-Plans" target="_blank">Midjourney — Comparing Plans</a></li>
+      <li><a href="https://artificial-intelligence-wiki.com/ai-tools/ai-design-tools/midjourney-pricing-plans/" target="_blank">AI Wiki — Midjourney Pricing Plans 2025</a></li>
+      <li><a href="https://www.cursor-ide.com/blog/gpt-image-1-pricing-guide-2025" target="_blank">GPT-Image-1 Pricing Guide 2025</a></li>
+      <li><a href="https://openai.com/api/pricing/" target="_blank">OpenAI API Pricing</a></li>
+      <li><a href="https://www.adobe.com/products/firefly/plans.html" target="_blank">Adobe Firefly Plans</a></li>
+      <li><a href="https://developer.adobe.com/firefly-services/docs/guides/get-started/" target="_blank">Adobe Firefly Services API — Getting Started</a></li>
+      <li><a href="https://docs.ideogram.ai/plans-and-pricing/available-plans" target="_blank">Ideogram — Available Plans</a></li>
+      <li><a href="https://ideogram.ai/features/api-pricing" target="_blank">Ideogram API Pricing</a></li>
+      <li><a href="https://www.figma.com/pricing/" target="_blank">Figma Pricing</a></li>
+      <li><a href="https://www.usegalileo.ai/explore/features/web" target="_blank">Galileo AI Pricing</a></li>
+      <li><a href="https://uizard.io/pricing/" target="_blank">Uizard Pricing</a></li>
+      <li><a href="https://www.visily.ai/pricing/" target="_blank">Visily Pricing</a></li>
+      <li><a href="https://www.stylefactoryproductions.com/blog/canva-pricing" target="_blank">Canva Pricing Guide (Style Factory)</a></li>
+      <li><a href="https://www.canva.com/magic/" target="_blank">Canva Magic Studio</a></li>
+      <li><a href="https://www.canva.dev/docs/connect/" target="_blank">Canva Connect APIs</a></li>
+      <li><a href="https://www.adobe.com/express/pricing" target="_blank">Adobe Express Pricing</a></li>
+      <li><a href="https://www.linktly.com/artificial-intelligence-software/looka-review/" target="_blank">Looka Review 2026</a></li>
+      <li><a href="https://uxcrush.com/best-ai-wireframe-generators" target="_blank">Best AI Wireframe Generators 2025 (UX Crush)</a></li>
+      <li><a href="https://blog.logrocket.com/ux-design/visilys-ai-wireframing-prototyping/" target="_blank">AI Wireframe Tools Compared (LogRocket)</a></li>
+    </ol>
+  </div>
+
+</div>
+
+<!-- ═══ FOOTER ══════════════════════════════════════════════════════════ -->
+<div class="footer">
+  Research by <em>Sweet Dee</em> · K2S0 Dev Team · February 27, 2026 · Pricing verified via web sources
+</div>
+
+</body>
+</html>

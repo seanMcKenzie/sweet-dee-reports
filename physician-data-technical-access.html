@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physician Data Sources: Technical Access Deep-Dive</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+    border-bottom: 2px solid #3b82f6;
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #60a5fa;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-size: 30px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .header-meta {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .header-meta span {
+    margin-right: 20px;
+  }
+  .header-meta strong {
+    color: #94a3b8;
+  }
+
+  .tldr {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 32px 48px;
+    font-size: 14.5px;
+    color: #cbd5e1;
+    line-height: 1.8;
+  }
+  .tldr strong { color: #93c5fd; }
+
+  main { padding: 0 48px 60px; }
+
+  .section-header {
+    margin: 48px 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1e293b;
+  }
+  .section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 4px;
+  }
+  .section-header .section-desc {
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  .source-card {
+    background: #141920;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .source-card:hover {
+    border-color: #334155;
+  }
+
+  .card-header {
+    background: #0d1520;
+    padding: 18px 24px;
+    border-bottom: 1px solid #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .icon-free { background: rgba(16, 185, 129, 0.15); }
+  .icon-paid { background: rgba(245, 158, 11, 0.15); }
+  .icon-warn { background: rgba(239, 68, 68, 0.15); }
+  .icon-info { background: rgba(59, 130, 246, 0.15); }
+
+  .card-title-block h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 3px;
+  }
+  .card-title-block .card-subtitle {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  .card-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .badge-free { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
+  .badge-paid { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+  .badge-blocked { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
+  .badge-media { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25); }
+
+  .card-body { padding: 24px; }
+
+  .quick-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .fact {
+    background: #0d1117;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .fact-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 4px;
+  }
+  .fact-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #cbd5e1;
+    word-break: break-word;
+  }
+  .fact-value.mono { font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace; font-size: 12px; }
+  .fact-value.green { color: #34d399; }
+  .fact-value.yellow { color: #fbbf24; }
+  .fact-value.red { color: #f87171; }
+
+  h4 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin: 20px 0 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  thead th {
+    background: #0d1117;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #1e293b;
+  }
+  tbody tr { border-bottom: 1px solid #1e293b; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  td {
+    padding: 10px 12px;
+    vertical-align: top;
+    color: #cbd5e1;
+  }
+  td:first-child {
+    color: #94a3b8;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  td code {
+    font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+    font-size: 11.5px;
+    color: #60a5fa;
+  }
+
+  pre {
+    background: #0a0f18;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #94a3b8;
+    margin: 12px 0;
+  }
+  pre .comment { color: #4b5563; }
+  pre .url { color: #60a5fa; }
+  pre .keyword { color: #c084fc; }
+  pre .string { color: #86efac; }
+
+  .warning-box {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #fca5a5;
+    margin: 12px 0;
+    display: flex;
+    gap: 10px;
+  }
+  .warning-box .icon { flex-shrink: 0; margin-top: 1px; }
+
+  .info-box {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #93c5fd;
+    margin: 12px 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .success-box {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #6ee7b7;
+    margin: 12px 0;
+  }
+
+  p {
+    margin-bottom: 12px;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+  li {
+    color: #94a3b8;
+    font-size: 13.5px;
+    margin-bottom: 5px;
+  }
+  li code {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+    color: #60a5fa;
+  }
+  li strong { color: #cbd5e1; }
+
+  .priority-table th { text-align: left; }
+  .priority-1 td:first-child { color: #34d399; font-weight: 700; }
+  .priority-2 td:first-child { color: #60a5fa; font-weight: 700; }
+  .priority-skip td { opacity: 0.5; }
+
+  .endpoint-block {
+    background: #0a0f18;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+  .endpoint-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+  .endpoint-url {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+    color: #60a5fa;
+    word-break: break-all;
+    line-height: 1.8;
+  }
+
+  .dea-algo {
+    background: #0a0f18;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.9;
+    margin: 12px 0;
+  }
+
+  footer {
+    background: #0d1117;
+    border-top: 1px solid #1e293b;
+    padding: 24px 48px;
+    text-align: center;
+    color: #475569;
+    font-size: 12px;
+  }
+
+  .divider {
+    height: 1px;
+    background: #1e293b;
+    margin: 32px 0;
+  }
+
+  @media (max-width: 768px) {
+    header, main { padding-left: 20px; padding-right: 20px; }
+    .tldr { margin: 20px; }
+    .quick-facts { grid-template-columns: 1fr 1fr; }
+    header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">🐦 Sweet Dee Research Report</div>
+  <h1>Physician Data Sources: Technical Access Deep-Dive</h1>
+  <p style="color:#64748b;margin-top:8px;font-size:14px;">Implementation-ready technical documentation for every major physician data source</p>
+  <div class="header-meta">
+    <span><strong>Date:</strong> February 26, 2026</span>
+    <span><strong>Prepared for:</strong> Sean McKenzie / K2S0</span>
+    <span><strong>Version:</strong> 1.0</span>
+  </div>
+</header>
+
+<div class="tldr">
+  <strong>TL;DR:</strong> The free CMS sources are genuinely accessible with no authentication or minimal registration. The NPPES NPI Registry, Medicare Part D &amp; Part B data, Open Payments, and the Provider Data Catalog are all fully open — no API keys required to start. DEA data is a meaningful gap: there's no free public bulk API, you need a paid service or to be a DEA registrant yourself. All major commercial sources (AMA Masterfile, Definitive Healthcare, Doceree, Doximity) are well above $1,000/month with no documented affordable tiers.
+</div>
+
+<main>
+
+<!-- ============================== SECTION 1: FREE SOURCES ============================== -->
+<div class="section-header">
+  <h2>Section 1: Free Sources</h2>
+  <div class="section-desc">Full technical access details — endpoints, auth, formats, rate limits, gotchas</div>
+</div>
+
+<!-- NPPES -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-free">🏥</div>
+    <div class="card-title-block">
+      <h3>1.1 NPPES NPI Registry</h3>
+      <div class="card-subtitle">The canonical physician identifier database — your foundation data source</div>
+    </div>
+    <span class="card-badge badge-free">FREE</span>
+  </div>
+  <div class="card-body">
+    <p>~8.5 million provider records. Every licensed US healthcare provider has an NPI. Two access methods: bulk download for full dataset, API for real-time lookups.</p>
+
+    <h4>Method A — Bulk Download</h4>
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">URL</div><div class="fact-value mono">download.cms.gov/nppes/NPI_Files.html</div></div>
+      <div class="fact"><div class="fact-label">Auth</div><div class="fact-value green">None required</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">CSV (zipped)</div></div>
+      <div class="fact"><div class="fact-label">Update Freq</div><div class="fact-value">Monthly full + weekly incremental</div></div>
+      <div class="fact"><div class="fact-label">File Size</div><div class="fact-value">~600MB compressed / ~8–10GB unzipped</div></div>
+      <div class="fact"><div class="fact-label">Column Count</div><div class="fact-value">330+ columns</div></div>
+    </div>
+
+    <div class="warning-box">
+      <span class="icon">⚠️</span>
+      <span><strong>Breaking change effective 03/03/2026:</strong> Version 1 files are retired. All integrations must use Version 2, which has extended character limits for First Name and Legal Business Name fields. Existing V1 pipelines will break silently.</span>
+    </div>
+
+    <h4>Key Fields Available</h4>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>NPI</code></td><td>10-digit National Provider Identifier</td></tr>
+        <tr><td><code>Entity Type Code</code></td><td>1 = Individual, 2 = Organization</td></tr>
+        <tr><td><code>Provider First/Last Name</code></td><td>Individual provider names</td></tr>
+        <tr><td><code>Provider Business Practice Location Address*</code></td><td>Street, City, State, ZIP</td></tr>
+        <tr><td><code>Healthcare Provider Taxonomy Code_1–15</code></td><td>NUCC specialty taxonomy codes</td></tr>
+        <tr><td><code>Healthcare Provider Primary Taxonomy Switch_1–15</code></td><td>Which taxonomy is primary</td></tr>
+        <tr><td><code>Provider License Number_1–15 + State</code></td><td>State license numbers</td></tr>
+        <tr><td><code>Provider Credential Text</code></td><td>MD, DO, NP, PA, etc.</td></tr>
+        <tr><td><code>NPI Deactivation Reason Code / Date / Reactivation Date</code></td><td>Active status tracking</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Method B — Real-Time API (v2.1)</h4>
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Base URL</div><div class="fact-value mono">npiregistry.cms.hhs.gov/api/?version=2.1</div></div>
+      <div class="fact"><div class="fact-label">Auth</div><div class="fact-value green">None — fully open</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">JSON</div></div>
+      <div class="fact"><div class="fact-label">Protocol</div><div class="fact-value">REST / GET</div></div>
+      <div class="fact"><div class="fact-label">Max per Request</div><div class="fact-value">200 results</div></div>
+      <div class="fact"><div class="fact-label">Max per Query</div><div class="fact-value">1,200 total (6 × 200)</div></div>
+    </div>
+
+    <pre><span class="comment"># Lookup by NPI number</span>
+https://npiregistry.cms.hhs.gov/api/?version=2.1&number=1234567890
+
+<span class="comment"># Search cardiologists in Texas</span>
+https://npiregistry.cms.hhs.gov/api/?version=2.1&taxonomy_description=Cardiology&state=TX&enumeration_type=NPI-1&limit=200
+
+<span class="comment"># Search by name (wildcard supported after 2 chars)</span>
+https://npiregistry.cms.hhs.gov/api/?version=2.1&first_name=John&last_name=Sm*&limit=200&pretty=on
+
+<span class="comment"># Paginate with skip</span>
+https://npiregistry.cms.hhs.gov/api/?version=2.1&city=Boston&limit=200&skip=200</pre>
+
+    <h4>Gotchas &amp; Notes</h4>
+    <ul>
+      <li><strong>API caps at 1,200 records per search</strong> — use bulk download for full dataset extraction</li>
+      <li><code>state</code> alone is not valid — must combine with another parameter</li>
+      <li><code>use_first_name_alias=True</code> by default — returns Robert for Bob, etc. Set to False for exact match</li>
+      <li>Output has nested JSON arrays for taxonomies, addresses, endpoints (not flat)</li>
+      <li>No documented rate limit, but aggressive polling may get throttled</li>
+      <li>API v1.0 and v2.0 are retired — only v2.1 works</li>
+      <li>R package available: <code>npi</code> on CRAN wraps the API cleanly</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Medicare Part D -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-free">💊</div>
+    <div class="card-title-block">
+      <h3>1.2 Medicare Part D Prescriber Data</h3>
+      <div class="card-subtitle">data.cms.gov — Who prescribed what to Medicare patients. ~1M providers annually.</div>
+    </div>
+    <span class="card-badge badge-free">FREE</span>
+  </div>
+  <div class="card-body">
+
+    <div class="warning-box">
+      <span class="icon">🔄</span>
+      <span><strong>Platform migration (July 2021):</strong> CMS moved from Socrata to their own ODA/DKAN platform. All old Socrata URLs (<code>data.cms.gov/resource/...</code>) are dead. Use the new ODA endpoints below.</span>
+    </div>
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Auth</div><div class="fact-value green">No key required (free key for higher limits)</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">JSON (API), CSV (bulk download)</div></div>
+      <div class="fact"><div class="fact-label">Update Freq</div><div class="fact-value">Annual (~18 month lag)</div></div>
+      <div class="fact"><div class="fact-label">Default Page Size</div><div class="fact-value">1,000 rows</div></div>
+      <div class="fact"><div class="fact-label">Latest Data Year</div><div class="fact-value">2023</div></div>
+    </div>
+
+    <h4>Dataset URLs</h4>
+    <div class="endpoint-block">
+      <div class="endpoint-label">By Provider (NPI-level summary)</div>
+      <div class="endpoint-url">https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider</div>
+    </div>
+    <div class="endpoint-block">
+      <div class="endpoint-label">By Provider and Drug (NPI + drug name)</div>
+      <div class="endpoint-url">https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider-and-drug</div>
+    </div>
+    <div class="endpoint-block">
+      <div class="endpoint-label">By Geography and Drug</div>
+      <div class="endpoint-url">https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-geography-and-drug</div>
+    </div>
+
+    <h4>API Query Pattern</h4>
+    <pre><span class="comment"># Get dataset metadata (find resource identifier)</span>
+GET {dataset-url}/data.json
+
+<span class="comment"># Query data — first 1000 rows as JSON</span>
+GET {dataset-url}/data?size=1000&offset=0
+
+<span class="comment"># Filter by NPI</span>
+GET {dataset-url}/data?conditions[0][property]=Prscrbr_NPI&conditions[0][value]=1234567890&conditions[0][operator]==
+
+<span class="comment"># Paginate</span>
+GET {dataset-url}/data?size=1000&offset=1000</pre>
+
+    <h4>Key Fields (By Provider dataset)</h4>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Prscrbr_NPI</code></td><td>Prescriber NPI</td></tr>
+        <tr><td><code>Prscrbr_Last_Org_Name</code> / <code>Prscrbr_First_Name</code></td><td>Name</td></tr>
+        <tr><td><code>Prscrbr_City</code> / <code>Prscrbr_State_Abrvtn</code></td><td>Location</td></tr>
+        <tr><td><code>Prscrbr_Type</code></td><td>Specialty/provider type</td></tr>
+        <tr><td><code>Tot_Clms</code></td><td>Total Medicare Part D claims</td></tr>
+        <tr><td><code>Tot_Drug_Cst</code></td><td>Total drug cost</td></tr>
+        <tr><td><code>Tot_Benes</code></td><td>Total beneficiaries served</td></tr>
+        <tr><td><code>Antbtc_Tot_Clms</code> / <code>Antpsyct_Tot_Clms</code></td><td>Antibiotic / Antipsychotic claims</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Medicare Part B -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-free">🩺</div>
+    <div class="card-title-block">
+      <h3>1.3 Medicare Part B Physician Utilization Data</h3>
+      <div class="card-subtitle">data.cms.gov — Fee-for-service procedure volumes and payments by physician. ~1M providers.</div>
+    </div>
+    <span class="card-badge badge-free">FREE</span>
+  </div>
+  <div class="card-body">
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Auth</div><div class="fact-value green">No key required</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">JSON (API), CSV/Excel (bulk)</div></div>
+      <div class="fact"><div class="fact-label">API Platform</div><div class="fact-value">CMS ODA (same as Part D)</div></div>
+      <div class="fact"><div class="fact-label">Update Freq</div><div class="fact-value">Annual</div></div>
+    </div>
+
+    <div class="warning-box">
+      <span class="icon">⚖️</span>
+      <span><strong>AMA Copyright Issue:</strong> The Part B Carrier Summary Data Files on cms.gov contain CPT/HCPCS codes copyrighted by the AMA and require an <strong>"AMA Click Agreement"</strong> before download. The data.cms.gov ODA API datasets for NPI-level utilization are more accessible, but if you process HCPCS codes, you're in AMA-licensed territory technically.</span>
+    </div>
+
+    <h4>Dataset URLs</h4>
+    <div class="endpoint-block">
+      <div class="endpoint-label">By Provider and Service (NPI + procedure code)</div>
+      <div class="endpoint-url">https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service</div>
+    </div>
+    <div class="endpoint-block">
+      <div class="endpoint-label">By Provider (NPI summary only)</div>
+      <div class="endpoint-url">https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider</div>
+    </div>
+
+    <h4>Key Fields</h4>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Rndrng_NPI</code></td><td>Rendering provider NPI</td></tr>
+        <tr><td><code>Rndrng_Prvdr_Last_Org_Name</code> / <code>Rndrng_Prvdr_First_Name</code></td><td>Name</td></tr>
+        <tr><td><code>Rndrng_Prvdr_Crdntls</code></td><td>Credentials (MD, DO, etc.)</td></tr>
+        <tr><td><code>Rndrng_Prvdr_Gndr</code></td><td>Gender</td></tr>
+        <tr><td><code>Rndrng_Prvdr_Ent_Cd</code></td><td>I = Individual, O = Organization</td></tr>
+        <tr><td><code>Rndrng_Prvdr_City</code> / <code>Rndrng_Prvdr_State_Abrvtn</code> / <code>Rndrng_Prvdr_Zip5</code></td><td>Location</td></tr>
+        <tr><td><code>Rndrng_Prvdr_Type</code></td><td>Provider type/specialty</td></tr>
+        <tr><td><code>HCPCS_Cd</code> / <code>HCPCS_Desc</code></td><td>Procedure code and description</td></tr>
+        <tr><td><code>Tot_Srvcs</code></td><td>Total services rendered</td></tr>
+        <tr><td><code>Tot_Mdcr_Pymt_Amt</code></td><td>Total Medicare payment</td></tr>
+        <tr><td><code>Avg_Mdcr_Pymt_Amt</code></td><td>Average Medicare payment per service</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Open Payments -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-free">💰</div>
+    <div class="card-title-block">
+      <h3>1.4 Open Payments / Sunshine Act</h3>
+      <div class="card-subtitle">openpaymentsdata.cms.gov — 84M+ payment records between pharma/device companies and physicians</div>
+    </div>
+    <span class="card-badge badge-free">FREE</span>
+  </div>
+  <div class="card-body">
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Portal</div><div class="fact-value mono">openpaymentsdata.cms.gov</div></div>
+      <div class="fact"><div class="fact-label">Auth</div><div class="fact-value green">None required</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">CSV (bulk), JSON (API)</div></div>
+      <div class="fact"><div class="fact-label">Record Count</div><div class="fact-value">84M+ records (2013–present)</div></div>
+      <div class="fact"><div class="fact-label">Update Freq</div><div class="fact-value">Annual + mid-year refreshes</div></div>
+      <div class="fact"><div class="fact-label">Platform</div><div class="fact-value">CMS ODA on AWS (Open Payments 2.0)</div></div>
+    </div>
+
+    <div class="info-box">
+      <span class="icon">ℹ️</span>
+      <span><strong>Platform migrated in 2024</strong> to Open Payments 2.0 on AWS. Verify any pre-2024 API integrations still work against the new endpoints.</span>
+    </div>
+
+    <h4>Data Categories</h4>
+    <table>
+      <thead><tr><th>Category</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>General Payments</td><td>Non-research payments: meals, consulting fees, honoraria, travel, gifts, speaking fees</td></tr>
+        <tr><td>Research Payments</td><td>Payments associated with clinical research studies</td></tr>
+        <tr><td>Ownership &amp; Investment</td><td>Physician equity stakes and investment income in manufacturers</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Bulk Download</h4>
+    <div class="endpoint-block">
+      <div class="endpoint-label">Resources &amp; Downloads</div>
+      <div class="endpoint-url">https://openpaymentsdata.cms.gov/about/resources</div>
+    </div>
+
+    <h4>Key Fields (General Payments)</h4>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Covered_Recipient_NPI</code></td><td>Physician NPI</td></tr>
+        <tr><td><code>Covered_Recipient_First/Last_Name</code></td><td>Physician name</td></tr>
+        <tr><td><code>Covered_Recipient_Primary_Type</code></td><td>MD, DO, NP, PA, etc.</td></tr>
+        <tr><td><code>Covered_Recipient_Specialty</code></td><td>Specialty</td></tr>
+        <tr><td><code>Submitting_Applicable_Manufacturer_or_Applicable_GPO_Name</code></td><td>Paying company</td></tr>
+        <tr><td><code>Total_Amount_of_Payment_USDollars</code></td><td>Payment amount</td></tr>
+        <tr><td><code>Date_of_Payment</code></td><td>Payment date</td></tr>
+        <tr><td><code>Nature_of_Payment_or_Transfer_of_Value</code></td><td>Consulting fee, food/beverage, education, etc.</td></tr>
+        <tr><td><code>Name_of_Drug_or_Biological_or_Device_or_Medical_Supply_1</code></td><td>Associated product</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Provider Data Catalog -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-free">📋</div>
+    <div class="card-title-block">
+      <h3>1.5 CMS Provider Data Catalog / Care Compare</h3>
+      <div class="card-subtitle">data.cms.gov/provider-data — Quality metrics, affiliations, contact info for physicians</div>
+    </div>
+    <span class="card-badge badge-free">FREE</span>
+  </div>
+  <div class="card-body">
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Portal</div><div class="fact-value mono">data.cms.gov/provider-data</div></div>
+      <div class="fact"><div class="fact-label">API Base</div><div class="fact-value mono">data.cms.gov/provider-data/api/1/</div></div>
+      <div class="fact"><div class="fact-label">Auth</div><div class="fact-value green">None required</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">JSON, CSV</div></div>
+      <div class="fact"><div class="fact-label">API Standard</div><div class="fact-value">DKAN Open Data (OpenAPI spec available)</div></div>
+      <div class="fact"><div class="fact-label">Update Freq</div><div class="fact-value">Quarterly</div></div>
+    </div>
+
+    <h4>Key Datasets</h4>
+    <table>
+      <thead><tr><th>Dataset</th><th>Identifier</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Doctors and Clinicians</td><td><code>mj5m-pzi6</code></td><td>Individual providers: MDs, DOs, NPs, PAs — name, specialty, location, affiliations, quality scores</td></tr>
+        <tr><td>Clinician Group Practice Reporting</td><td><code>25dv-uyph</code></td><td>Group practice affiliations</td></tr>
+        <tr><td>Utilization Data</td><td><code>n0yb-util</code></td><td>Service utilization by provider</td></tr>
+      </tbody>
+    </table>
+
+    <h4>API Patterns</h4>
+    <pre><span class="comment"># List all datasets</span>
+GET https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items
+
+<span class="comment"># Get dataset metadata</span>
+GET https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items/{identifier}
+
+<span class="comment"># Query data from a resource (paginated)</span>
+GET https://data.cms.gov/provider-data/api/1/datastore/query/{resource-id}?limit=500&offset=0
+
+<span class="comment"># SQL query (filter by state)</span>
+GET https://data.cms.gov/provider-data/api/1/datastore/sql?query=[SELECT * FROM {resource-id} WHERE State='TX' LIMIT 500]
+
+<span class="comment"># Download as CSV</span>
+GET https://data.cms.gov/provider-data/api/1/datastore/query/{resource-id}/download?format=csv</pre>
+
+    <h4>Doctors and Clinicians Key Fields</h4>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>NPI</code></td><td>10-digit NPI</td></tr>
+        <tr><td><code>PAC ID</code></td><td>Unique Medicare enrollment ID</td></tr>
+        <tr><td><code>Last Name</code> / <code>First Name</code> / <code>Credential</code></td><td>Identity</td></tr>
+        <tr><td><code>Gender</code></td><td>M/F</td></tr>
+        <tr><td><code>Medical School Name</code> / <code>Graduation Year</code></td><td>Training</td></tr>
+        <tr><td><code>Primary Specialty</code> / <code>Secondary Specialty 1–4</code></td><td>Specialties</td></tr>
+        <tr><td><code>Organization Legal Name</code></td><td>Affiliated group/hospital</td></tr>
+        <tr><td><code>Line 1/2 Street Address</code> / <code>City/Town</code> / <code>State</code> / <code>ZIP Code</code></td><td>Location</td></tr>
+        <tr><td><code>Phone Number</code></td><td>Practice phone</td></tr>
+        <tr><td><code>Hospital affiliations</code> (up to 5)</td><td>Affiliated hospitals</td></tr>
+        <tr><td><code>Telehealth</code></td><td>Y/N — accepts telehealth</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DEA -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-warn">🚫</div>
+    <div class="card-title-block">
+      <h3>1.6 DEA Registrations</h3>
+      <div class="card-subtitle">No free public API exists. Significant access barrier. Solutions below.</div>
+    </div>
+    <span class="card-badge badge-blocked">NOT FREELY AVAILABLE</span>
+  </div>
+  <div class="card-body">
+
+    <div class="warning-box">
+      <span class="icon">🔒</span>
+      <span><strong>Gap alert:</strong> Unlike CMS data, the DEA does not publish a free, open bulk download or public API for registrant data. This is a real blocker if DEA verification is required in your system.</span>
+    </div>
+
+    <h4>What Actually Exists</h4>
+    <table>
+      <thead><tr><th>Option</th><th>Access Requirement</th><th>What You Get</th></tr></thead>
+      <tbody>
+        <tr><td>DEA Registrant Validation Toolset</td><td>Must be an <strong>active DEA registrant</strong> yourself</td><td>Validate another registrant's status + limited dataset download</td></tr>
+        <tr><td>Algorithmic number validation</td><td>None — free to implement</td><td>Format &amp; checksum validation only. Does NOT confirm active registration.</td></tr>
+        <tr><td>DEA Lookup.com (commercial)</td><td>Paid subscription</td><td>Full registrant data, daily updates, REST API</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Free Option: DEA Number Checksum Algorithm</h4>
+    <p style="color:#94a3b8;margin-bottom:8px;">DEA numbers follow a deterministic checksum. You can validate format without any API call:</p>
+    <div class="dea-algo">
+Format: [2 letters][7 digits]
+  Letter 1: Registrant type (B=hospital, C=practitioner, M=mid-level, X=suboxone...)
+  Letter 2: First letter of registrant's last name
+
+Checksum validation:
+  A = digit1 + digit3 + digit5
+  B = (digit2 + digit4 + digit6) × 2
+  digit7 must equal last digit of (A + B)
+
+Example: AB1234563
+  A = 1+3+5 = 9
+  B = (2+4+6) × 2 = 24
+  A+B = 33 → last digit = 3 ✓ (matches digit7)</div>
+
+    <h4>Commercial Option: DEA Lookup.com</h4>
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">URL</div><div class="fact-value mono">dealookup.com</div></div>
+      <div class="fact"><div class="fact-label">Protocol</div><div class="fact-value">REST (HTTP POST)</div></div>
+      <div class="fact"><div class="fact-label">Output Format</div><div class="fact-value">JSON, XML, or pipe-delimited</div></div>
+      <div class="fact"><div class="fact-label">Data Updates</div><div class="fact-value">Daily from primary source</div></div>
+      <div class="fact"><div class="fact-label">Response Time</div><div class="fact-value">≤10ms</div></div>
+      <div class="fact"><div class="fact-label">Pricing</div><div class="fact-value yellow">Flat-rate subscription (contact for price)</div></div>
+    </div>
+    <ul>
+      <li>Unlimited queries on flat-rate subscription</li>
+      <li>State license cross-reference available</li>
+      <li>Bulk certificate download for compliance</li>
+      <li>SSL option, multi-threaded, auto-restart on server reboot</li>
+      <li>Compliant under new DEA data rules</li>
+      <li>Contact: info@dealookup.com</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================== SECTION 2: PAID SOURCES ============================== -->
+<div class="section-header">
+  <h2>Section 2: Paid Sources — Pricing &amp; Technical Details</h2>
+  <div class="section-desc">All major commercial sources are above $1,000/month. No accessible lower tiers documented.</div>
+</div>
+
+<!-- AMA -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-paid">🏛️</div>
+    <div class="card-title-block">
+      <h3>2.1 AMA Physician Professional Data (Masterfile)</h3>
+      <div class="card-subtitle">1.4M physician records from medical school through retirement. Most complete physician dataset.</div>
+    </div>
+    <span class="card-badge badge-paid">$30K–$150K+/year</span>
+  </div>
+  <div class="card-body">
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Pricing</div><div class="fact-value red">$30,000–$150,000+/year. No affordable tier.</div></div>
+      <div class="fact"><div class="fact-label">Access Method</div><div class="fact-value">Bulk flat file delivery via SFTP</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">CSV / fixed-width flat file (AMA spec)</div></div>
+      <div class="fact"><div class="fact-label">Update Freq</div><div class="fact-value">Monthly refresh files</div></div>
+      <div class="fact"><div class="fact-label">Record Count</div><div class="fact-value">~1.4M physicians (MDs, DOs, residents, students)</div></div>
+      <div class="fact"><div class="fact-label">Authentication</div><div class="fact-value">License agreement + SFTP credentials</div></div>
+    </div>
+
+    <p><strong>Key differentiator vs. CMS sources:</strong> AMA covers physicians who do NOT participate in Medicare, including residents, international medical graduates, and early-career physicians. 2,200+ data elements vs. ~330 in NPPES.</p>
+    <p><strong>How to license:</strong> Contact AMA directly (ama-assn.org → Physician Data Solutions) or through licensed resellers: Redi-Data, IQVIA/IMS. Requires data use agreement specifying intended use.</p>
+    <p><strong>No REST API</strong> for full dataset queries. Bulk file delivery only. Monthly update files delivered incrementally.</p>
+    <p><strong>Lower-cost alternative:</strong> Redi-Data (redidata.com) sells targeted subsets — you buy a physician list by specialty/geography rather than the full file. Better for targeted use cases; more affordable than full licensing.</p>
+  </div>
+</div>
+
+<!-- Definitive Healthcare -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-paid">📊</div>
+    <div class="card-title-block">
+      <h3>2.2 Definitive Healthcare</h3>
+      <div class="card-subtitle">Full healthcare intelligence platform. API is OData-based and well-documented.</div>
+    </div>
+    <span class="card-badge badge-paid">~$50K+/year</span>
+  </div>
+  <div class="card-body">
+
+    <div class="info-box">
+      <span class="icon">ℹ️</span>
+      <span>Pricing is well above $1,000/month (median contract ~$50K/year = ~$4,200/month), but the API is real and the technical docs are solid. Documenting the full API here for when budget is available.</span>
+    </div>
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">API Base URL</div><div class="fact-value mono">api.defhc.com/v4</div></div>
+      <div class="fact"><div class="fact-label">Auth Method</div><div class="fact-value">OAuth (username/password → Bearer token)</div></div>
+      <div class="fact"><div class="fact-label">Token Endpoint</div><div class="fact-value mono">POST /v4/token</div></div>
+      <div class="fact"><div class="fact-label">Protocol</div><div class="fact-value">REST / OData</div></div>
+      <div class="fact"><div class="fact-label">Format</div><div class="fact-value">JSON (API), CSV/XML (reports)</div></div>
+      <div class="fact"><div class="fact-label">SDK</div><div class="fact-value">None official; standard HTTP client</div></div>
+    </div>
+
+    <h4>Authentication Flow</h4>
+    <pre><span class="comment"># Step 1: Get Bearer token</span>
+curl -X POST \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=password&username={user}&password={pass}" \
+  "https://api.defhc.com/v4/token"
+<span class="comment"># Returns: { "access_token": "DQ8udZDz...", "token_type": "Bearer" }</span>
+
+<span class="comment"># Step 2: Use token in all requests</span>
+curl -X GET \
+  -H "Authorization: Bearer {access_token}" \
+  "https://api.defhc.com/v4/odata-v4/Hospitals"</pre>
+
+    <h4>Key Endpoints</h4>
+    <table>
+      <thead><tr><th>Entity</th><th>Endpoint</th></tr></thead>
+      <tbody>
+        <tr><td>Hospitals</td><td><code>GET /v4/odata-v4/Hospitals</code></td></tr>
+        <tr><td>Hospital by ID</td><td><code>GET /v4/odata-v4/Hospitals({id})</code></td></tr>
+        <tr><td>Hospital + Executives</td><td><code>GET /v4/odata-v4/Hospitals?$expand=Executives</code></td></tr>
+        <tr><td>Executives</td><td><code>GET /v4/odata-v4/Executives</code></td></tr>
+        <tr><td>Reports (list)</td><td><code>GET /v4/Reports?returnType=csv</code></td></tr>
+        <tr><td>Custom Report download</td><td><code>GET /v4/Reports/{reportName}</code></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Important Gotcha</h4>
+    <div class="warning-box">
+      <span class="icon">⚠️</span>
+      <span>Physician data access depends on your specific license. More importantly: the API works primarily through <strong>custom reports configured by your Definitive account manager</strong>. You don't freely query arbitrary physician fields — you define report templates with your account team, then pull them via the Reports endpoint. Less flexible than it appears.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Doceree -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-paid">📡</div>
+    <div class="card-title-block">
+      <h3>2.3 Doceree</h3>
+      <div class="card-subtitle">Programmatic HCP advertising network — 2,000+ medical platforms, 6M+ verified HCPs</div>
+    </div>
+    <span class="card-badge badge-media">MEDIA PLATFORM</span>
+  </div>
+  <div class="card-body">
+    <div class="warning-box">
+      <span class="icon">🚨</span>
+      <span><strong>Not a data licensing product.</strong> Doceree is a media/advertising platform for reaching physicians with ads. It uses NPI-level targeting internally but does not sell or expose physician data. If Sean needs to <em>advertise to</em> physicians this is relevant; if he needs to <em>identify or export</em> physician data, it is not.</span>
+    </div>
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Product Type</div><div class="fact-value">Programmatic HCP advertising network</div></div>
+      <div class="fact"><div class="fact-label">NPI Targeting</div><div class="fact-value">NPI-level via ESPYIAN™ identity engine</div></div>
+      <div class="fact"><div class="fact-label">Network Size</div><div class="fact-value">2,000+ platforms, 6M+ verified HCPs</div></div>
+      <div class="fact"><div class="fact-label">Pricing Model</div><div class="fact-value yellow">CPM-based; campaign minimums undisclosed</div></div>
+      <div class="fact"><div class="fact-label">Integration</div><div class="fact-value">DSP/programmatic protocols; managed service</div></div>
+    </div>
+    <p>Access via: doceree.com → Request Demo. Performance reporting available post-campaign. No public API for data access.</p>
+  </div>
+</div>
+
+<!-- Doximity -->
+<div class="source-card">
+  <div class="card-header">
+    <div class="card-icon icon-paid">👨‍⚕️</div>
+    <div class="card-title-block">
+      <h3>2.4 Doximity Marketing Solutions</h3>
+      <div class="card-subtitle">80% of U.S. MDs on platform. DocNews, Digests, Medical Affairs content formats.</div>
+    </div>
+    <span class="card-badge badge-media">MEDIA PLATFORM</span>
+  </div>
+  <div class="card-body">
+    <div class="warning-box">
+      <span class="icon">🚨</span>
+      <span><strong>Not a data licensing product.</strong> Doximity is a physician professional network that sells advertising against its membership. Like Doceree — a media buy, not a data source.</span>
+    </div>
+
+    <div class="quick-facts">
+      <div class="fact"><div class="fact-label">Network Size</div><div class="fact-value">2M+ clinicians; 80% of U.S. MDs; 50% of NPs/PAs</div></div>
+      <div class="fact"><div class="fact-label">Pricing Model</div><div class="fact-value yellow">Managed campaigns; $25K–$100K+ typical minimums</div></div>
+      <div class="fact"><div class="fact-label">Self-Service</div><div class="fact-value">In development — "Get Early Access" in 2026</div></div>
+      <div class="fact"><div class="fact-label">Data Access</div><div class="fact-value red">No bulk NPI data licensing</div></div>
+    </div>
+
+    <p><strong>Watch:</strong> Doximity's self-service ad platform is actively developing and may lower minimum spends. Worth revisiting if the advertising use case becomes relevant.</p>
+  </div>
+</div>
+
+<!-- ============================== SECTION 3: PRIORITY TABLE ============================== -->
+<div class="section-header">
+  <h2>Section 3: Integration Priority Recommendations</h2>
+  <div class="section-desc">Ordered by value, effort, and cost</div>
+</div>
+
+<div class="source-card">
+  <div class="card-body" style="padding:0;">
+    <table class="priority-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Source</th>
+          <th>Why</th>
+          <th>Effort</th>
+          <th>Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="priority-1">
+          <td>⭐ 1</td>
+          <td>NPPES NPI Bulk Download</td>
+          <td>Foundation data; 8.5M records; monthly updates; 330+ fields</td>
+          <td>Low</td>
+          <td>Free</td>
+        </tr>
+        <tr class="priority-1">
+          <td>⭐ 2</td>
+          <td>CMS Provider Data Catalog</td>
+          <td>Quality scores, group affiliations, hospital affiliations, phone numbers; quarterly updates</td>
+          <td>Low</td>
+          <td>Free</td>
+        </tr>
+        <tr class="priority-2">
+          <td>🔵 3</td>
+          <td>Medicare Part D Prescribers</td>
+          <td>Prescribing patterns by drug; critical for pharma targeting</td>
+          <td>Low–Med</td>
+          <td>Free</td>
+        </tr>
+        <tr class="priority-2">
+          <td>🔵 4</td>
+          <td>Open Payments</td>
+          <td>Pharma financial relationships; 84M+ records going back to 2013</td>
+          <td>Low–Med</td>
+          <td>Free</td>
+        </tr>
+        <tr class="priority-2">
+          <td>🔵 5</td>
+          <td>Medicare Part B Utilization</td>
+          <td>Procedure volumes and payments; specialty targeting</td>
+          <td>Low–Med</td>
+          <td>Free</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>NPPES NPI API</td>
+          <td>Real-time single-NPI lookups; good for on-demand verification</td>
+          <td>Low</td>
+          <td>Free</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>DEA Lookup.com</td>
+          <td>If DEA verification required; paid but flat-rate</td>
+          <td>Med</td>
+          <td>~$200–$500/mo (est.)</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>State Licensing Boards</td>
+          <td>Supplemental credentialing for specific states; variable quality</td>
+          <td>High</td>
+          <td>Mostly free</td>
+        </tr>
+        <tr class="priority-skip">
+          <td>—</td>
+          <td>AMA Masterfile</td>
+          <td>Expensive; CMS sources cover most use cases</td>
+          <td>—</td>
+          <td>$30K+/year</td>
+        </tr>
+        <tr class="priority-skip">
+          <td>—</td>
+          <td>Definitive Healthcare</td>
+          <td>Expensive; limited value over CMS free data for physician targeting</td>
+          <td>—</td>
+          <td>$50K+/year</td>
+        </tr>
+        <tr class="priority-skip">
+          <td>—</td>
+          <td>Doceree / Doximity</td>
+          <td>Media platforms, not data sources</td>
+          <td>—</td>
+          <td>Campaign-based</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================== QUICK REFERENCE ============================== -->
+<div class="section-header">
+  <h2>Section 4: Quick Reference — All Endpoints</h2>
+</div>
+
+<div class="source-card">
+  <div class="card-body">
+    <pre><span class="comment">### NPPES NPI Registry ###</span>
+<span class="keyword">Bulk Download:</span>
+  https://download.cms.gov/nppes/NPI_Files.html
+
+<span class="keyword">Real-Time API:</span>
+  https://npiregistry.cms.hhs.gov/api/?version=2.1
+  https://npiregistry.cms.hhs.gov/api/?version=2.1&number={NPI}
+  https://npiregistry.cms.hhs.gov/api/?version=2.1&taxonomy_description={specialty}&state={ST}&limit=200
+
+<span class="comment">### Medicare Part D Prescribers ###</span>
+<span class="keyword">By Provider:</span>
+  https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider
+
+<span class="keyword">By Provider and Drug:</span>
+  https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider-and-drug
+
+<span class="comment">### Medicare Part B Utilization ###</span>
+<span class="keyword">By Provider and Service:</span>
+  https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service
+
+<span class="comment">### Open Payments ###</span>
+<span class="keyword">Portal:</span>  https://openpaymentsdata.cms.gov
+<span class="keyword">Downloads:</span>  https://openpaymentsdata.cms.gov/about/resources
+
+<span class="comment">### CMS Provider Data Catalog ###</span>
+<span class="keyword">Portal:</span>       https://data.cms.gov/provider-data
+<span class="keyword">API Base:</span>     https://data.cms.gov/provider-data/api/1/
+<span class="keyword">API Docs:</span>     https://data.cms.gov/provider-data/docs
+<span class="keyword">Doctors/Clinicians dataset: mj5m-pzi6</span>
+
+<span class="comment">### Definitive Healthcare (subscription required) ###</span>
+<span class="keyword">Auth:</span>    POST https://api.defhc.com/v4/token
+<span class="keyword">Data:</span>    GET  https://api.defhc.com/v4/odata-v4/{Entity}
+<span class="keyword">Reports:</span> GET  https://api.defhc.com/v4/Reports
+<span class="keyword">Docs:</span>    https://api.defhc.com/v4/Documentation
+
+<span class="comment">### DEA Lookup (commercial, paid) ###</span>
+<span class="keyword">Web:</span>   https://www.dealookup.com
+<span class="keyword">API:</span>   https://www.dealookup.com/LicenseLookup/DEA_API_Data_Engine.asp</pre>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <p>Report by Sweet Dee — Research Agent | February 26, 2026</p>
+  <p style="margin-top:4px;color:#374151;">This is thorough work. I will be taking credit for it.</p>
+</footer>
+
+</body>
+</html>
